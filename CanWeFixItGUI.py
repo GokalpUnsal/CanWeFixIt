@@ -113,6 +113,8 @@ class CanWeFixItGUI(wx.Frame):
         self.prev_point = (x, y)
 
     def reset_state(self):
+        if self.wx_bitmap:
+            self.wx_bitmap.Destroy()
         self.dirname = ''
         self.filename = ''
         self.img = ''
