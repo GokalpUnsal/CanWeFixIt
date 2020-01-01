@@ -1,0 +1,6 @@
+pip
+setuptools
+wxPython
+numpy
+opencv-python
+six
