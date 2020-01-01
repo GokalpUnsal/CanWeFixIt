@@ -68,7 +68,7 @@ class CanWeFixItGUI(wx.Frame):
 
         self.original_img = cv2.resize(original_img, (self.img_width, self.img_height))
         self.painted_img = cv2.resize(original_img, (self.img_width, self.img_height))
-        self.mask_img = np.zeros((self.img_width, self.img_height, 3), np.uint8)
+        self.mask_img = np.zeros((self.img_height, self.img_width, 3), np.uint8)
 
         wx_img = wx.Bitmap.FromBuffer(self.img_width, self.img_height, self.painted_img)
         self.wx_bitmap = wx.StaticBitmap(self, -1, wx_img, (106, 25))
