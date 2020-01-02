@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
+import numpy as np
 
 
 class GatedConv2D(nn.Module):
@@ -11,11 +12,14 @@ class GatedConv2D(nn.Module):
 
     def forward(self, x):
         x = self.conv(x)
+        if x.shape[1] == 3:
+            return x
         x, gate = torch.split(x, 2, 1)
         x = F.elu(x)
         gate = torch.sigmoid(gate)
         x = x * gate
         return x
+
 
 class GatedDeconv2D(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -23,6 +27,19 @@ class GatedDeconv2D(nn.Module):
         self.conv = GatedConv2D(in_channels, out_channels)
 
     def forward(self, x):
-        #x = resize(x, func=tf.image.resize_nearest_neighbor)
+        x = nn.functional.interpolate(x, scale_factor=2)
         x = self.conv(x)
+        return x
+
+
+class SpectralConv2D(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size=5, stride=2):
+        super().__init__()
+        self.conv = nn.utils.spectral_norm(nn.Conv2d(in_channels, out_channels, kernel_size, stride))
+        self.kernel_size = kernel_size
+        self.stride = stride
+
+    def forward(self, x):
+        self.conv.padding = ((x.shape[2] - 1) * (self.stride - 1) + (self.kernel_size - 1)) // 2
+        x = F.leaky_relu(self.conv(x))
         return x
