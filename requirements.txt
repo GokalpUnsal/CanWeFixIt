@@ -4,3 +4,5 @@ wxPython
 numpy
 opencv-python
 six
+torch
+torchvision
