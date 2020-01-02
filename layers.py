@@ -11,15 +11,15 @@ class GatedConv2D(nn.Module):
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride, pad, dilation)
         self.activation = activation
 
-    def forward(self, x):
-        x = self.conv(x)
-        if x.shape[1] == 3:
-            return x
-        x, gate = torch.split(x, 2, 1)
-        x = self.activation(x)
-        gate = F.sigmoid(gate)
-        x = x * gate
-        return x
+    def forward(self, xin):
+        xout = self.conv(xin)
+        if xout.shape[1] == 3:
+            return xout
+        xout, gate = torch.split(xout, 2, 1)
+        xout = self.activation(xout)
+        gate = torch.sigmoid(gate)
+        xout = xout * gate
+        return xout
 
 
 class GatedDeconv2D(nn.Module):
@@ -27,10 +27,10 @@ class GatedDeconv2D(nn.Module):
         super().__init__()
         self.conv = GatedConv2D(in_channels, out_channels)
 
-    def forward(self, x):
-        x = nn.functional.interpolate(x, scale_factor=2)
-        x = self.conv(x)
-        return x
+    def forward(self, xin):
+        xin = nn.functional.interpolate(xin, scale_factor=2)
+        xout = self.conv(xin)
+        return xout
 
 
 class SpectralConv2D(nn.Module):
@@ -41,6 +41,6 @@ class SpectralConv2D(nn.Module):
         self.kernel_size = kernel_size
         self.stride = stride
 
-    def forward(self, x):
-        x = F.leaky_relu(self.conv(x))
-        return x
+    def forward(self, xin):
+        xout = F.leaky_relu(self.conv(xin))
+        return xout
