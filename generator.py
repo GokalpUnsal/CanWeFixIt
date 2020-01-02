@@ -1,6 +1,6 @@
-from layers import *
+from .layers import *
 import cv2
-import matplotlib.pyplot as plt
+
 
 class Generator(nn.Module):
     def __init__(self):
@@ -29,8 +29,8 @@ class Generator(nn.Module):
         self.conv16 = GatedConv2D(ch // 2, ch // 2)
         self.conv17 = GatedConv2D(ch // 4, 3)
 
-        #stage 2
-        #TODO: reverse mask in here or
+        # stage 2
+        # TODO: reverse mask in here or
         self.xconv1 = GatedConv2D(3, ch, kernel_size=5)
         self.xconv2_downsample = GatedConv2D(ch // 2, ch, stride=2)
         self.xconv3 = GatedConv2D(ch // 2, 2 * ch)
@@ -41,21 +41,21 @@ class Generator(nn.Module):
         self.xconv8_atrous = GatedConv2D(2 * ch, 4 * ch, dilation=4)
         self.xconv9_atrous = GatedConv2D(2 * ch, 4 * ch, dilation=8)
         self.xconv10_atrous = GatedConv2D(2 * ch, 4 * ch, dilation=16)
-        #x halu = x in forward
+        # x halu = x in forward
 
-        #attention branch
+        # attention branch
         self.pmconv1 = GatedConv2D(3, ch, kernel_size=5)
         self.pmconv2_downsample = GatedConv2D(ch // 2, ch, stride=2)
         self.pmconv3 = GatedConv2D(ch // 2, 2 * ch)
         self.pmconv4_downsample = GatedConv2D(ch, 4 * ch, stride=2)
         self.pmconv5 = GatedConv2D(2 * ch, 4 * ch)
         self.pmconv6 = GatedConv2D(2 * ch, 4 * ch, activation=F.relu)
-        #TODO: contextual attention
+        # TODO: contextual attention
         self.pmconv9 = GatedConv2D(2 * ch, 4 * ch)
         self.pmconv10 = GatedConv2D(2 * ch, 4 * ch)
-        #pm = x
+        # pm = x
 
-        #concat xhalu and pm
+        # concat xhalu and pm
 
         self.allconv11 = GatedConv2D(4 * ch, 4 * ch, 3, 1)
         self.allconv12 = GatedConv2D(2 * ch, 4 * ch, 3, 1)
@@ -89,7 +89,7 @@ class Generator(nn.Module):
         x = torch.tanh(x)
         x_stage_1 = x
 
-        x = x*mask + xin[:, 0:3, :, :]*(1-mask)
+        x = x * mask + xin[:, 0:3, :, :] * (1 - mask)
         x.reshape(xin[:, 0:3, :, :].shape)
 
         xnow = x
@@ -116,7 +116,7 @@ class Generator(nn.Module):
         x = self.pmconv10(x)
         pm = x
 
-        x = torch.cat([x_halu,pm],dim=1)
+        x = torch.cat([x_halu, pm], dim=1)
         x = self.allconv11(x)
         x = self.allconv12(x)
         x = self.allconv13_upsample(x)
@@ -126,7 +126,7 @@ class Generator(nn.Module):
         x = self.allconv17(x)
         x = torch.tanh(x)
         x_stage_2 = x
-        #return x_stage_1, x_stage_2, offset_flow
+        # return x_stage_1, x_stage_2, offset_flow
         return x
 
 
@@ -151,6 +151,7 @@ def main():
     # plt.imshow(img)
     # plt.show()
     pass
+
 
 if __name__ == '__main__':
     main()

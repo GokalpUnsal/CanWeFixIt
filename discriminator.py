@@ -1,4 +1,5 @@
-from layers import *
+from .layers import *
+
 
 class Discriminator(nn.Module):
     def __init__(self):
@@ -22,8 +23,6 @@ class Discriminator(nn.Module):
         x = self.conv6(x)
         x = self.flatten(x)
         return x
-
-
 
 
 class Flatten(nn.Module):
