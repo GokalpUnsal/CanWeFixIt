@@ -1,5 +1,6 @@
 from layers import *
 import cv2
+import matplotlib.pyplot as plt
 
 class Generator(nn.Module):
     def __init__(self):
@@ -110,7 +111,7 @@ class Generator(nn.Module):
         x = self.pmconv4_downsample(x)
         x = self.pmconv5(x)
         x = self.pmconv6(x)
-        # TODO: contectual attention
+        # TODO: contextual attention
         x = self.pmconv9(x)
         x = self.pmconv10(x)
         pm = x
@@ -130,17 +131,26 @@ class Generator(nn.Module):
 
 
 def main():
-    dtype = torch.float
+    device = torch.device("cuda: 0" if torch.cuda.is_available() else "cpu")
+    dtype = torch.float32
     # number * depth * width * height
-    x = torch.zeros((2, 3, 512, 512), dtype=dtype)
+    x = torch.randn((8, 3, 256, 256), dtype=dtype, device=device)
+    print(x.requires_grad)
     # mask is  (number of input) * binary matrix
-    mask = torch.zeros((2, 1, 512, 512), dtype=dtype)
+    mask = torch.zeros((8, 1, 256, 256), dtype=dtype, device=device)
     generator = Generator()
-    #if torch.cuda.is_available():
-    #    generator.cuda()
+
+    generator = generator.to(device)
+    print(device)
     out = generator(x, mask)
-    #cv2.imwrite("random_mask.png", out[0].T)
-    a=1
+    print(x.requires_grad)
+    # img = out[0].permute(1,2,0)
+    # img = img.cpu()
+    # img = img.detach().numpy()
+    # img = (img /2) + 0.5
+    # plt.imshow(img)
+    # plt.show()
+    pass
 
 if __name__ == '__main__':
     main()
