@@ -10,6 +10,8 @@ class GatedConv2D(nn.Module):
         pad = dilation * (kernel_size - 1) // 2
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride, pad, dilation)
         self.activation = activation
+        nn.init.normal_(self.conv.weight.data, 0.0, 0.02)
+        nn.init.constant_(self.conv.bias.data, 0)
 
     def forward(self, xin):
         xout = self.conv(xin)
@@ -27,6 +29,7 @@ class GatedDeconv2D(nn.Module):
         super().__init__()
         self.conv = GatedConv2D(in_channels, out_channels)
 
+
     def forward(self, xin):
         xin = nn.functional.interpolate(xin, scale_factor=2)
         xout = self.conv(xin)
@@ -38,6 +41,8 @@ class SpectralConv2D(nn.Module):
         super().__init__()
         pad = (kernel_size - 1) // 2
         self.conv = nn.utils.spectral_norm(nn.Conv2d(in_channels, out_channels, kernel_size, stride, pad))
+        nn.init.normal_(self.conv.weight.data, 0.0, 0.02)
+        nn.init.constant_(self.conv.bias.data, 0)
 
     def forward(self, xin):
         xout = F.leaky_relu(self.conv(xin))
