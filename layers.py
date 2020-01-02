@@ -9,7 +9,7 @@ class GatedConv2D(nn.Module):
         pad = dilation * (kernel_size - 1) // 2
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride, pad, dilation)
         self.sigmoid = nn.Sigmoid()
-        self.activation = activation
+        self.add_module("activation", activation)
 
     def forward(self, x):
         x = self.conv(x)
