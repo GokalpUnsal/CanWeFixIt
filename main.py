@@ -3,11 +3,11 @@ import torch.utils.data
 import torchvision.datasets as dset
 import torchvision.transforms as transforms
 import torchvision.utils as vutils
-from .gan import *
+from gan import *
 
 
 def main():
-    dataroot = "data/places2"
+    dataroot = "./"
     batch_size = 1
     image_size = 256
 
@@ -31,6 +31,7 @@ def main():
     plt.title("Training Images")
     plt.imshow(
         np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu(), (1, 2, 0)))
+    plt.show()
 
     # Create GAN
     network = GAN(device)

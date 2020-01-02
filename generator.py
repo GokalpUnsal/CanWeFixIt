@@ -1,4 +1,4 @@
-from .layers import *
+from layers import *
 
 
 class Generator(nn.Module):
