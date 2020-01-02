@@ -15,7 +15,7 @@ class GatedConv2D(nn.Module):
         xout = self.conv(xin)
         if xout.shape[1] == 3:
             return xout
-        xout, gate = torch.split(xout, 2, 1)
+        xout, gate = xout.split(xout.shape[1]//2, 1)
         xout = self.activation(xout)
         gate = torch.sigmoid(gate)
         xout = xout * gate

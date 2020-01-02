@@ -1,5 +1,5 @@
-from .layers import *
-
+from layers import *
+import cv2
 
 class Generator(nn.Module):
     def __init__(self):
@@ -130,13 +130,17 @@ class Generator(nn.Module):
 
 
 def main():
-    dtype = torch.float32
+    dtype = torch.float
     # number * depth * width * height
-    x = torch.rand((64, 3, 512, 512), dtype=dtype)
+    x = torch.zeros((2, 3, 512, 512), dtype=dtype)
     # mask is  (number of input) * binary matrix
-    mask = torch.zeros((64, 1, 512, 512), dtype=dtype)
-    model = Generator()
-
+    mask = torch.zeros((2, 1, 512, 512), dtype=dtype)
+    generator = Generator()
+    #if torch.cuda.is_available():
+    #    generator.cuda()
+    out = generator(x, mask)
+    #cv2.imwrite("random_mask.png", out[0].T)
+    a=1
 
 if __name__ == '__main__':
     main()
