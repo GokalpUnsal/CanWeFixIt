@@ -6,63 +6,63 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
 
         ch = 48
+        ch_input = 5
 
         # stage_1
-        self.conv1 = GatedConv2D(ch, kernel_size=5)
-        self.conv2_downsample = GatedConv2D(2 * ch, stride=2)
-        self.conv3 = GatedConv2D(2 * ch)
-        self.conv4_downsample = GatedConv2D(4 * ch, stride=2)
-        self.conv5 = GatedConv2D(4 * ch)
-        self.conv6 = GatedConv2D(4 * ch)
+        self.conv1 = GatedConv2D(ch_input, ch, kernel_size=5)
+        self.conv2_downsample = GatedConv2D(ch // 2, 2 * ch, stride=2)
+        self.conv3 = GatedConv2D(ch, 2 * ch)
+        self.conv4_downsample = GatedConv2D(ch, 4 * ch, stride=2)
+        self.conv5 = GatedConv2D(2 * ch, 4 * ch)
+        self.conv6 = GatedConv2D(2 * ch, 4 * ch)
         # mask s but its resized in ours
-        self.conv7_atrous = GatedConv2D(4 * ch, dilation=2)
-        self.conv8_atrous = GatedConv2D(4 * ch, dilation=4)
-        self.conv9_atrous = GatedConv2D(4 * ch, dilation=8)
-        self.conv10_atrous = GatedConv2D(4 * ch, dilation=16)
-        self.conv11 = GatedConv2D(4 * ch)
-        self.conv12 = GatedConv2D(4 * ch)
-        self.conv13_upsample = GatedDeconv2D(2 * ch)
-        self.conv14 = GatedConv2D(2 * ch)
-        self.conv15_upsample = GatedDeconv2D(ch)
-        self.conv16 = GatedConv2D(ch // 2)
-        self.conv17 = GatedConv2D(3)
+        self.conv7_atrous = GatedConv2D(2 * ch, 4 * ch, dilation=2)
+        self.conv8_atrous = GatedConv2D(2 * ch, 4 * ch, dilation=4)
+        self.conv9_atrous = GatedConv2D(2 * ch, 4 * ch, dilation=8)
+        self.conv10_atrous = GatedConv2D(2 * ch, 4 * ch, dilation=16)
+        self.conv11 = GatedConv2D(2 * ch, 4 * ch)
+        self.conv12 = GatedConv2D(2 * ch, 4 * ch)
+        self.conv13_upsample = GatedDeconv2D(2 * ch, 2 * ch)
+        self.conv14 = GatedConv2D(ch, 2 * ch)
+        self.conv15_upsample = GatedDeconv2D(ch, ch)
+        self.conv16 = GatedConv2D(ch // 2, ch // 2)
+        self.conv17 = GatedConv2D(ch // 4, 3)
 
         #stage 2
         #TODO: reverse mask in here or
-        self.xconv1 = GatedConv2D(ch, kernel_size=5)
-        self.xconv2_downsample = GatedConv2D(ch, stride=2)
-        self.xconv3 = GatedConv2D(2 * ch)
-        self.xconv4_downsample = GatedConv2D(2 * ch, stride=2)
-        self.xconv5 = GatedConv2D(4 * ch)
-        self.xconv6 = GatedConv2D(4 * ch)
-        self.xconv7_atrous = GatedConv2D(4 * ch, dilation=2)
-        self.xconv8_atrous = GatedConv2D(4 * ch, dilation=4)
-        self.xconv9_atrous = GatedConv2D(4 * ch, dilation=8)
-        self.xconv10_atrous = GatedConv2D(4 * ch, dilation=16)
+        self.xconv1 = GatedConv2D(3, ch, kernel_size=5)
+        self.xconv2_downsample = GatedConv2D(ch // 2, ch, stride=2)
+        self.xconv3 = GatedConv2D(ch // 2, 2 * ch)
+        self.xconv4_downsample = GatedConv2D(ch, 2 * ch, stride=2)
+        self.xconv5 = GatedConv2D(ch, 4 * ch)
+        self.xconv6 = GatedConv2D(2 * ch, 4 * ch)
+        self.xconv7_atrous = GatedConv2D(2 * ch, 4 * ch, dilation=2)
+        self.xconv8_atrous = GatedConv2D(2 * ch, 4 * ch, dilation=4)
+        self.xconv9_atrous = GatedConv2D(2 * ch, 4 * ch, dilation=8)
+        self.xconv10_atrous = GatedConv2D(2 * ch, 4 * ch, dilation=16)
         #x halu = x in forward
 
         #attention branch
-        #TODO: check channel count for pmconv2 (not * 2)
-        self.pmconv1 = GatedConv2D(ch, kernel_size=5)
-        self.pmconv2_downsample = GatedConv2D(2 * ch, stride=2)
-        self.pmconv3 = GatedConv2D(2 * ch)
-        self.pmconv4_downsample = GatedConv2D(4 * ch, stride=2)
-        self.pmconv5 = GatedConv2D(4 * ch)
-        self.pmconv6 = GatedConv2D(4 * ch, activation=nn.ReLU)
+        self.pmconv1 = GatedConv2D(3, ch, kernel_size=5)
+        self.pmconv2_downsample = GatedConv2D(ch // 2, ch, stride=2)
+        self.pmconv3 = GatedConv2D(ch // 2, 2 * ch)
+        self.pmconv4_downsample = GatedConv2D(ch, 4 * ch, stride=2)
+        self.pmconv5 = GatedConv2D(2 * ch, 4 * ch)
+        self.pmconv6 = GatedConv2D(2 * ch, 4 * ch, activation=F.relu)
         #TODO: contextual attention
-        self.pmconv9 = GatedConv2D(4 * ch)
-        self.pmconv10 = GatedConv2D(4 * ch)
+        self.pmconv9 = GatedConv2D(2 * ch, 4 * ch)
+        self.pmconv10 = GatedConv2D(2 * ch, 4 * ch)
         #pm = x
 
         #concat xhalu and pm
 
-        self.allconv11 = GatedConv2D(4 * ch, 3, 1)
-        self.allconv12 = GatedConv2D(4 * ch, 3, 1)
-        self.allconv13_upsample = GatedDeconv2D(2 * ch)
-        self.allconv14 = GatedConv2D(2 * ch, 3, 1)
-        self.allconv15_upsample = GatedDeconv2D(ch)
-        self.allconv16 = GatedConv2D(ch // 2)
-        self.allconv17 = GatedConv2D(3)
+        self.allconv11 = GatedConv2D(4 * ch, 4 * ch, 3, 1)
+        self.allconv12 = GatedConv2D(2 * ch, 4 * ch, 3, 1)
+        self.allconv13_upsample = GatedDeconv2D(2 * ch, 2 * ch)
+        self.allconv14 = GatedConv2D(ch, 2 * ch, 3, 1)
+        self.allconv15_upsample = GatedDeconv2D(ch, ch)
+        self.allconv16 = GatedConv2D(ch // 2, ch // 2)
+        self.allconv17 = GatedConv2D(ch // 4, 3)
 
     def forward(self, x, mask):
         xin = x
