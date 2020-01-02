@@ -6,7 +6,7 @@ class Model(nn.Module):
         super(Model, self).__init__()
 
         ch = 48
-        input_channels = 4
+        input_channels = 5
 
         # stage_1
         self.conv1 = GatedConv2D(input_channels, ch, kernel_size=5)
