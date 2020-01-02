@@ -1,4 +1,4 @@
-from layers import *
+from .layers import *
 
 
 class Discriminator(nn.Module):

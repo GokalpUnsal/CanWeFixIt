@@ -1,5 +1,5 @@
-from discriminator import Discriminator
-from generator import Generator
+from .discriminator import Discriminator
+from .generator import Generator
 import torch.nn as nn
 import torch
 from torch import optim
@@ -25,21 +25,18 @@ criterion = nn.BCELoss()
 real_label = 1
 fake_label = 0
 
+
 # Setup Adam optimizers for both G and D
 # optimizerD = optim.Adam(netD.parameters(), lr=lr, betas=(beta1, 0.999))
 # optimizerG = optim.Adam(netG.parameters(), lr=lr, betas=(beta1, 0.999))
 
 
 class GAN:
-    def __init__(self):
-        self.device = torch.device("cuda: 0" if torch.cuda.is_available() else "cpu")
+    def __init__(self, device):
+        self.device = device
         self.dtype = torch.float32
         self.gen = Generator().to(self.device)
         self.dis = Discriminator().to(self.device)
-
-        # self.gen.apply(self.weights_init)
-        # self.dis.apply(self.weights_init)
-
 
     # def weights_init(self, m):
     #     classname = m.__class__.__name__
@@ -49,16 +46,15 @@ class GAN:
     #         nn.init.normal_(m.conv.weight.data, 1.0, 0.02)
     #         nn.init.constant_(m.bias.data, 0)
 
-
     def train(self):
         x = torch.randn((8, 3, 256, 256), dtype=self.dtype, device=self.device)
         mask = torch.zeros((8, 1, 256, 256), dtype=self.dtype, device=self.device)
 
         out = self.gen(x, mask)
-        img = out[0].permute(1,2,0)
+        img = out[0].permute(1, 2, 0)
         img = img.cpu()
         img = img.detach().numpy()
-        img = (img /2) + 0.5
+        img = (img / 2) + 0.5
         plt.imshow(img)
         plt.show()
 

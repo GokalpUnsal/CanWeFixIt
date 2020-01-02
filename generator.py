@@ -1,5 +1,4 @@
-from layers import *
-import cv2
+from .layers import *
 
 
 class Generator(nn.Module):
