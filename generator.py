@@ -48,7 +48,7 @@ class Generator(nn.Module):
         self.pmconv3 = GatedConv2D(ch // 2, 2 * ch)
         self.pmconv4_downsample = GatedConv2D(ch, 4 * ch, stride=2)
         self.pmconv5 = GatedConv2D(2 * ch, 4 * ch)
-        self.pmconv6 = GatedConv2D(2 * ch, 4 * ch, activation=nn.ReLU)
+        self.pmconv6 = GatedConv2D(2 * ch, 4 * ch, activation=F.relu)
         #TODO: contextual attention
         self.pmconv9 = GatedConv2D(2 * ch, 4 * ch)
         self.pmconv10 = GatedConv2D(2 * ch, 4 * ch)

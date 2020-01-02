@@ -9,7 +9,6 @@ class GatedConv2D(nn.Module):
         super().__init__()
         pad = dilation * (kernel_size - 1) // 2
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride, pad, dilation)
-        self.sigmoid = nn.Sigmoid()
         self.activation = activation
 
     def forward(self, x):
@@ -18,7 +17,7 @@ class GatedConv2D(nn.Module):
             return x
         x, gate = torch.split(x, 2, 1)
         x = self.activation(x)
-        gate = self.sigmoid(gate)
+        gate = F.sigmoid(gate)
         x = x * gate
         return x
 
