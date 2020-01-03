@@ -45,11 +45,11 @@ class GAN:
     #         nn.init.constant_(m.bias.data, 0)
 
 
-    def train(self, data):
-        x = torch.randn((8, 3, 256, 256), dtype=self.dtype, device=self.device)
-        mask = torch.zeros((8, 1, 256, 256), dtype=self.dtype, device=self.device)
-        for epoch in range(self.num_epochs):
-            pass
+    def train(self, dataloader):
+        img_list = []
+        G_losses = []
+        D_losses = []
+        iters = 0
         # out = self.gen(x, mask)
         # img = out[0].permute(1,2,0)
         # img = img.cpu()
@@ -57,6 +57,13 @@ class GAN:
         # img = (img /2) + 0.5
         # plt.imshow(img)
         # plt.show()
+        x = torch.randn((8, 3, 256, 256), dtype=self.dtype, device=self.device)
+        mask = torch.zeros((8, 1, 256, 256), dtype=self.dtype, device=self.device)
+        for epoch in range(self.num_epochs):
+            for i, data in enumerate(dataloader, 0):
+                self.dis.zero_grad()
+                # print(i)
+                # print(data)
 
 
 if __name__ == '__main__':

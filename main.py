@@ -15,6 +15,8 @@ def main():
     # Decide which device we want to run on
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+
+
     # Create the dataset
     dataset = dset.ImageFolder(root=dataroot,
                                transform=transforms.Compose([
@@ -23,6 +25,7 @@ def main():
                                    transforms.ToTensor(),
                                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                ]))
+
     # Create the dataloader
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
@@ -30,12 +33,14 @@ def main():
     plt.figure(figsize=(8, 8))
     plt.axis("off")
     plt.title("Training Images")
-    plt.imshow(
-        np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu(), (1, 2, 0)))
+    a = np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu(), (1, 2, 0))
+    plt.imshow(a
+        )
     plt.show()
 
     # Create GAN
     network = GAN(device)
+    network.train(dataloader)
 
 
 if __name__ == '__main__':

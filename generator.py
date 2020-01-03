@@ -29,7 +29,6 @@ class Generator(nn.Module):
         self.conv17 = GatedConv2D(ch // 4, 3)
 
         # stage 2
-        # TODO: reverse mask in here or
         self.xconv1 = GatedConv2D(3, ch, kernel_size=5)
         self.xconv2_downsample = GatedConv2D(ch // 2, ch, stride=2)
         self.xconv3 = GatedConv2D(ch // 2, 2 * ch)
