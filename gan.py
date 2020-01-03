@@ -1,12 +1,8 @@
-from discriminator import Discriminator
-from generator import Generator
+from .discriminator import Discriminator
+from .generator import Generator
 import torch.nn as nn
 import torch
 from torch import optim
-import matplotlib.pyplot as plt
-
-
-
 
 
 class GAN:

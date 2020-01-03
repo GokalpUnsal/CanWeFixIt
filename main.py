@@ -3,7 +3,8 @@ import torch.utils.data
 import torchvision.datasets as dset
 import torchvision.transforms as transforms
 import torchvision.utils as vutils
-from gan import *
+import matplotlib.pyplot as plt
+from .gan import *
 
 
 def main():
