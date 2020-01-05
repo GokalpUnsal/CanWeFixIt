@@ -1,8 +1,10 @@
-from .discriminator import Discriminator
-from .generator import Generator
-import torch.nn as nn
 import torch
 from torch import optim
+import torch.nn as nn
+
+from utils import bbox2mask, brush_stroke_mask, random_bbox
+from .discriminator import Discriminator
+from .generator import Generator
 
 
 class GAN:
@@ -57,12 +59,12 @@ class GAN:
 
         for epoch in range(self.num_epochs):
             for i, batch_data in enumerate(dataloader, 0):
-
                 # Prepare batch
                 batch_pos = batch_data
-                # TODO: Random Mask Generation
-                irregular_mask = None
-                mask = irregular_mask
+                bbox = random_bbox()
+                regular_mask = bbox2mask(bbox)
+                irregular_mask = brush_stroke_mask()
+                mask = (regular_mask.type(torch.bool) | irregular_mask.type(torch.bool)).type(torch.float32)
                 batch_incomplete = batch_pos * (1. - mask)
                 xin = batch_incomplete
 

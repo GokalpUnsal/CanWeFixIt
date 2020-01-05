@@ -3,6 +3,8 @@ import numpy as np
 import wx
 from wx.core import wx
 
+from utils import brush_stroke_mask
+
 
 class CanWeFixItGUI(wx.Frame):
     MAX_WIDTH = 512
@@ -87,52 +89,8 @@ class CanWeFixItGUI(wx.Frame):
         cv2.imwrite("mask_%s" % self.filename, self.mask_img)
 
     def onGenerateRandomMask(self, e):
-        """Generate mask tensor from bbox.
-            Returns:
-                tf.Tensor: output with shape [1, H, W, 1]
-            """
-        min_num_vertex = 4
-        max_num_vertex = 12
-        mean_angle = 2 * np.math.pi / 5
-        angle_range = 2 * np.math.pi / 15
-        min_width = 12
-        max_width = 40
-        H = 256
-        W = 256
-
-        average_radius = np.math.sqrt(H * H + W * W) / 8
-        mask = np.zeros((H, W, 1), np.uint8)
-
-        for _ in range(np.random.randint(1, 4)):
-            num_vertex = np.random.randint(min_num_vertex, max_num_vertex)
-            angle_min = mean_angle - np.random.uniform(0, angle_range)
-            angle_max = mean_angle + np.random.uniform(0, angle_range)
-            angles = []
-            vertex = []
-            for i in range(num_vertex):
-                if i % 2 == 0:
-                    angles.append(2 * np.math.pi - np.random.uniform(angle_min, angle_max))
-                else:
-                    angles.append(np.random.uniform(angle_min, angle_max))
-
-            h, w = mask.shape[:2]
-            vertex.append((int(np.random.randint(0, w)), int(np.random.randint(0, h))))
-            width = int(np.random.uniform(min_width, max_width))
-            for i in range(1, num_vertex):
-                r = np.clip(
-                    np.random.normal(loc=average_radius, scale=average_radius // 2),
-                    0, 2 * average_radius)
-                new_x = np.clip(vertex[-1][0] + r * np.math.cos(angles[i]), 0, w)
-                new_y = np.clip(vertex[-1][1] + r * np.math.sin(angles[i]), 0, h)
-                vertex.append((int(new_x), int(new_y)))
-                cv2.line(mask, vertex[i - 1], vertex[i], (255, 255, 255), thickness=width)
-                cv2.circle(mask,  vertex[i], width // 2, (255, 255, 255), thickness=-1)
-        if np.random.normal() > 0:
-            cv2.flip(mask, 0)
-        if np.random.normal() > 0:
-            cv2.flip(mask, 1)
-
-        cv2.imwrite("random_mask.png", mask)
+        random_mask = brush_stroke_mask().permute(1, 2, 0, 3).numpy()[:, :, :, -1]
+        cv2.imwrite("random_mask.png", random_mask)
 
     def on_image_left_down(self, e):
         x, y = e.GetPosition()
