@@ -75,9 +75,9 @@ class GAN:
                 losses = {}
                 # Apply mask and complete image
                 batch_complete = batch_predicted * mask + batch_incomplete * (1. - mask)
-                # TODO: local patches
-                # losses['ae_loss'] = tf.reduce_mean(tf.abs(batch_pos - x1))
-                # losses['ae_loss'] += tf.reduce_mean(tf.abs(batch_pos - x2))
+                
+                losses['ae_loss'] = torch.mean(torch.abs(batch_pos - x1), dim=-1)
+                losses['ae_loss'] += torch.mean(torch.abs(batch_pos - x2), dim=-1)
 
                 batch_pos_neg = torch.cat([batch_pos, batch_complete], dim=0)
                 # TODO: torch tile
