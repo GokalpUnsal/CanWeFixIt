@@ -23,7 +23,7 @@ class GAN:
         # Beta1 hyperparam for Adam optimizers
         self.beta1 = 0.5
 
-        self.batch_size = 1
+        self.batch_size = 32
 
         # Create batch of latent vectors that we will use to visualize
         #  the progression of the generator
@@ -56,9 +56,9 @@ class GAN:
                 bbox = random_bbox()
                 regular_mask = bbox2mask(bbox).permute(0, 3, 1, 2)
                 irregular_mask = brush_stroke_mask().permute(0, 3, 1, 2)
-                mask = (regular_mask.type(torch.bool) | irregular_mask.type(torch.bool)).type(torch.float32)
-
-                batch_incomplete = batch_pos[0] * (torch.tensor(1.) - mask)
+                mask = (regular_mask.type(torch.bool) | irregular_mask.type(torch.bool)).type(torch.float32).to(self.device)
+                batch_pos[0] = batch_pos[0].to(self.device)
+                batch_incomplete = batch_pos[0] * (torch.tensor(1.).cuda() - mask)
                 xin = batch_incomplete
 
                 # Forward pass for generator
@@ -85,7 +85,6 @@ class GAN:
                 # errD_real =
                 # errD_real.backward()
                 # D_x = output.mean().item()
-
                 self.gen.zero_grad()
 
 

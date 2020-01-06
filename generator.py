@@ -51,11 +51,12 @@ class Generator(nn.Module):
         self.pmconv10 = GatedConv2D(4 * ch, 4 * ch)
 
         # concat xhalu and pm
+
         self.allconv11 = GatedConv2D(8 * ch, 4 * ch, 3, 1)
         self.allconv12 = GatedConv2D(4 * ch, 4 * ch, 3, 1)
         self.allconv13_upsample = GatedDeconv2D(4 * ch, 2 * ch)
         self.allconv14 = GatedConv2D(2 * ch, 2 * ch, 3, 1)
-        self.allconv15_upsample = GatedDeconv2D(2 * ch, ch)
+        self.allconv15_upsample = GatedDeconv2D(2 *ch, ch)
         self.allconv16 = GatedConv2D(ch, ch // 2)
         self.allconv17 = GatedConv2D(ch // 2, 3, activation=None)
 
