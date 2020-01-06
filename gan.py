@@ -62,14 +62,11 @@ class GAN:
                 # Prepare batch
                 batch_pos = batch_data
 
-                mask_list = []
-                for j in range(len(batch_data[0])):
-                    bbox = random_bbox()
-                    regular_mask = bbox2mask(bbox).permute(0, 3, 1, 2)
-                    irregular_mask = brush_stroke_mask().permute(0, 3, 1, 2)
-                    mask_list.append((regular_mask.type(torch.bool) | irregular_mask.type(torch.bool)).type(torch.float32))
+                bbox = random_bbox()
+                regular_mask = bbox2mask(bbox).permute(0, 3, 1, 2)
+                irregular_mask = brush_stroke_mask().permute(0, 3, 1, 2)
+                mask = (regular_mask.type(torch.bool) | irregular_mask.type(torch.bool)).type(torch.float32)
 
-                mask = torch.cat(mask_list)
                 batch_incomplete = batch_pos[0] * (torch.tensor(1.) - mask)
                 xin = batch_incomplete
 
