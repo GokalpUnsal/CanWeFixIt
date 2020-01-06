@@ -12,7 +12,6 @@ class Discriminator(nn.Module):
         self.conv4 = SpectralConv2D(inp, 4 * cnum, 4 * cnum)
         self.conv5 = SpectralConv2D(inp, 4 * cnum, 4 * cnum)
         self.conv6 = SpectralConv2D(inp, 4 * cnum, 4 * cnum)
-        self.flatten = Flatten()
 
     def forward(self, x):
         x = self.conv1(x)
@@ -21,10 +20,5 @@ class Discriminator(nn.Module):
         x = self.conv4(x)
         x = self.conv5(x)
         x = self.conv6(x)
-        x = self.flatten(x)
+        x = torch.flatten(x)
         return x
-
-
-class Flatten(nn.Module):
-    def forward(self, input):
-        return input.view(input.size(0), -1)
