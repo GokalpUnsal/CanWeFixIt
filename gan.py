@@ -58,7 +58,7 @@ class GAN:
                 irregular_mask = brush_stroke_mask().permute(0, 3, 1, 2)
                 mask = (regular_mask.type(torch.bool) | irregular_mask.type(torch.bool)).type(torch.float32).to(self.device)
                 batch_pos[0] = batch_pos[0].to(self.device)
-                batch_incomplete = batch_pos[0] * (torch.tensor(1.).cuda() - mask)
+                batch_incomplete = batch_pos[0] * (torch.tensor(1.).to(self.device) - mask)
                 xin = batch_incomplete
 
                 # Forward pass for generator
