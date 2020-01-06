@@ -60,8 +60,8 @@ def brush_stroke_mask(dimensions=(256, 256), min_num_vertex=4, max_num_vertex=12
             new_x = np.clip(vertex[-1][0] + r * np.math.cos(angles[i]), 0, w)
             new_y = np.clip(vertex[-1][1] + r * np.math.sin(angles[i]), 0, h)
             vertex.append((int(new_x), int(new_y)))
-            cv2.line(mask, vertex[i - 1], vertex[i], (255, 255, 255), thickness=width)
-            cv2.circle(mask, vertex[i], width // 2, (255, 255, 255), thickness=-1)
+            cv2.line(mask, vertex[i - 1], vertex[i], 1, thickness=width)
+            cv2.circle(mask, vertex[i], width // 2, 1, thickness=-1)
     if np.random.normal() > 0:
         cv2.flip(mask, 0)
     if np.random.normal() > 0:

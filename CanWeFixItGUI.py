@@ -90,6 +90,11 @@ class CanWeFixItGUI(wx.Frame):
 
     def onGenerateRandomMask(self, e):
         random_mask = brush_stroke_mask().permute(1, 2, 0, 3).numpy()[:, :, :, -1]
+        for i in range(len(random_mask)):
+            for j in range(len(random_mask[i])):
+                if random_mask[i][j] == 1:
+                    random_mask[i][j] = 255
+
         cv2.imwrite("random_mask.png", random_mask)
 
     def on_image_left_down(self, e):
