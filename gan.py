@@ -2,7 +2,7 @@ import torch
 from torch import optim
 import torch.nn as nn
 
-from utils import bbox2mask, brush_stroke_mask, random_bbox
+from utils import bbox2mask, brush_stroke_mask, random_bbox, gan_hinge_loss
 from discriminator import Discriminator
 from generator import Generator
 
@@ -23,7 +23,7 @@ class GAN:
         # Beta1 hyperparam for Adam optimizers
         self.beta1 = 0.5
 
-        self.batch_size = 32
+        self.batch_size = 1
 
         # Create batch of latent vectors that we will use to visualize
         #  the progression of the generator
@@ -81,6 +81,9 @@ class GAN:
                 self.dis.zero_grad()
                 pos_neg = self.dis(batch_pos_neg)
                 pos, neg = torch.split(pos_neg, pos_neg.shape[0] // 2)
+                g_loss, d_loss = gan_hinge_loss(pos, neg)
+                losses['g_loss'] = g_loss
+                losses['d_loss'] = d_loss
                 # TODO: error sum
                 # errD_real =
                 # errD_real.backward()
