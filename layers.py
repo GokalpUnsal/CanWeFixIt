@@ -16,6 +16,8 @@ class GatedConv2D(nn.Module):
         self.activation = activation
         nn.init.normal_(self.conv.weight.data, 0.0, 0.02)
         nn.init.constant_(self.conv.bias.data, 0)
+        nn.init.normal_(self.conv_mask.weight.data, 0.0, 0.02)
+        nn.init.constant_(self.conv_mask.bias.data, 0)
 
     def forward(self, x):
         x = self.pad(x)
