@@ -25,13 +25,6 @@ class GAN:
 
         self.batch_size = 1
 
-        # Create batch of latent vectors that we will use to visualize
-        #  the progression of the generator
-        # fixed_noise = torch.randn(64, nz, 1, 1, device=device)
-
-        # Initialize BCELoss function
-        self.criterion = nn.BCELoss()
-
         # Establish convention for real and fake labels during training
         self.real_label = 1
         self.fake_label = -1
@@ -75,7 +68,6 @@ class GAN:
                 batch_pos_neg = torch.cat([batch_pos[0], batch_complete], dim=0)
                 # TODO: torch tile
                 # batch_pos_neg = torch.cat([batch_pos_neg, torch.tile(mask, [self.batch_size * 2, 1, 1, 1])], dim=3)
-                # TODO: hinge loss
 
                 # Forward pass for discriminator
                 self.dis.zero_grad()
