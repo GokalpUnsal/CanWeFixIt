@@ -65,8 +65,8 @@ class GAN:
                 bbox = random_bbox()
                 regular_mask = bbox2mask(bbox).permute(0, 3, 1, 2)
                 irregular_mask = brush_stroke_mask().permute(0, 3, 1, 2)
-                mask = (regular_mask.type(torch.bool) | irregular_mask.type(torch.bool)).type(torch.float32).to(device)
-                batch_pos[0] = batch_pos[0].to(device)
+                mask = (regular_mask.type(torch.bool) | irregular_mask.type(torch.bool)).type(torch.float32).to(self.device)
+                batch_pos[0] = batch_pos[0].to(self.device)
                 batch_incomplete = batch_pos[0] * (torch.tensor(1.).cuda() - mask)
                 xin = batch_incomplete
 
