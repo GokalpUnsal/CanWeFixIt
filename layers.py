@@ -20,6 +20,7 @@ class GatedConv2D(nn.Module):
         nn.init.constant_(self.conv_mask.bias.data, 0)
 
     def forward(self, x):
+        print(x.shape)
         x = self.pad(x)
         mask = self.conv_mask(x)
         gate = torch.sigmoid(mask)
