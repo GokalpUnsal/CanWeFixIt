@@ -1,10 +1,8 @@
-import numpy as np
 import torch.utils.data
-import torchvision.datasets as dset
+from torchvision import datasets
 import torchvision.transforms as transforms
-import torchvision.utils as vutils
-import matplotlib.pyplot as plt
-from .gan import *
+
+from gan import *
 
 
 def main():
@@ -15,16 +13,14 @@ def main():
     # Decide which device we want to run on
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
-
     # Create the dataset
-    dataset = dset.ImageFolder(root=dataroot,
-                               transform=transforms.Compose([
-                                   transforms.Resize(image_size),
-                                   transforms.CenterCrop(image_size),
-                                   transforms.ToTensor(),
-                                   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-                               ]))
+    dataset = datasets.ImageFolder(root=dataroot,
+                                   transform=transforms.Compose([
+                                       transforms.Resize(image_size),
+                                       transforms.CenterCrop(image_size),
+                                       transforms.ToTensor(),
+                                       transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                                   ]))
 
     # real_batch = next(iter(dataloader))
     # plt.figure(figsize=(8, 8))

@@ -1,3 +1,5 @@
+Pillow<7
+matplotlib
 pip
 setuptools
 wxPython

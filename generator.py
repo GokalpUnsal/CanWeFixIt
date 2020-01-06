@@ -1,4 +1,4 @@
-from .layers import *
+from layers import *
 
 
 class Generator(nn.Module):
@@ -6,7 +6,7 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
 
         ch = 48
-        ch_input = 4
+        ch_input = 5
 
         # stage_1
         self.conv1 = GatedConv2D(ch_input, ch, kernel_size=5)
@@ -124,8 +124,8 @@ class Generator(nn.Module):
         x = self.allconv17(x)
         x = torch.tanh(x)
         x_stage_2 = x
-        # return x_stage_1, x_stage_2, offset_flow
-        return x
+        return x_stage_1, x_stage_2, None  # TODO: Set offset_flow instead of None
+        # return x
 
 
 def main():

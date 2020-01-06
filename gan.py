@@ -3,8 +3,8 @@ from torch import optim
 import torch.nn as nn
 
 from utils import bbox2mask, brush_stroke_mask, random_bbox
-from .discriminator import Discriminator
-from .generator import Generator
+from discriminator import Discriminator
+from generator import Generator
 
 
 class GAN:
@@ -61,11 +61,16 @@ class GAN:
             for i, batch_data in enumerate(dataloader, 0):
                 # Prepare batch
                 batch_pos = batch_data
-                bbox = random_bbox()
-                regular_mask = bbox2mask(bbox)
-                irregular_mask = brush_stroke_mask()
-                mask = (regular_mask.type(torch.bool) | irregular_mask.type(torch.bool)).type(torch.float32)
-                batch_incomplete = batch_pos * (1. - mask)
+
+                mask_list = []
+                for j in range(len(batch_data[0])):
+                    bbox = random_bbox()
+                    regular_mask = bbox2mask(bbox).permute(0, 3, 1, 2)
+                    irregular_mask = brush_stroke_mask().permute(0, 3, 1, 2)
+                    mask_list.append((regular_mask.type(torch.bool) | irregular_mask.type(torch.bool)).type(torch.float32))
+
+                mask = torch.cat(mask_list)
+                batch_incomplete = batch_pos[0] * (torch.tensor(1.) - mask)
                 xin = batch_incomplete
 
                 # Forward pass for generator
@@ -74,12 +79,12 @@ class GAN:
                 batch_predicted = x2
                 losses = {}
                 # Apply mask and complete image
-                batch_complete = batch_predicted * mask + batch_incomplete * (1. - mask)
-                
-                losses['ae_loss'] = torch.mean(torch.abs(batch_pos - x1), dim=-1)
-                losses['ae_loss'] += torch.mean(torch.abs(batch_pos - x2), dim=-1)
+                batch_complete = batch_predicted * mask + batch_incomplete * (torch.tensor(1.) - mask)
 
-                batch_pos_neg = torch.cat([batch_pos, batch_complete], dim=0)
+                losses['ae_loss'] = torch.mean(torch.abs(batch_pos[0] - x1), dim=-1)
+                losses['ae_loss'] += torch.mean(torch.abs(batch_pos[0] - x2), dim=-1)
+
+                batch_pos_neg = torch.cat([batch_pos[0], batch_complete], dim=0)
                 # TODO: torch tile
                 # batch_pos_neg = torch.cat([batch_pos_neg, torch.tile(mask, [self.batch_size * 2, 1, 1, 1])], dim=3)
                 # TODO: hinge loss
