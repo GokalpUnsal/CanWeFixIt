@@ -47,15 +47,6 @@ class GAN:
         G_losses = []
         D_losses = []
         iters = 0
-        # out = self.gen(x, mask)
-        # img = out[0].permute(1,2,0)
-        # img = img.cpu()
-        # img = img.detach().numpy()
-        # img = (img /2) + 0.5
-        # plt.imshow(img)
-        # plt.show()
-        # x = torch.randn((8, 3, 256, 256), dtype=self.dtype, device=self.device)
-        # mask = torch.zeros((8, 1, 256, 256), dtype=self.dtype, device=self.device)
 
         for epoch in range(self.num_epochs):
             for i, batch_data in enumerate(dataloader, 0):
