@@ -18,12 +18,12 @@ class GAN:
         self.num_epochs = 5
 
         # Learning rate for optimizers
-        self.lr = 0.0002
+        self.lr = 1e-4  # 0.0002
 
         # Beta1 hyperparam for Adam optimizers
         self.beta1 = 0.5
 
-        self.batch_size = 1
+        self.batch_size = 8
 
         # Create batch of latent vectors that we will use to visualize
         #  the progression of the generator
@@ -47,16 +47,18 @@ class GAN:
         G_losses = []
         D_losses = []
         iters = 0
-
+        self.gen.train()
+        self.dis.train()
         for epoch in range(self.num_epochs):
             for i, batch_data in enumerate(dataloader, 0):
                 # Prepare batch
                 batch_pos = batch_data
-
+                self.gen.to(self.device)
                 bbox = random_bbox()
                 regular_mask = bbox2mask(bbox).permute(0, 3, 1, 2)
                 irregular_mask = brush_stroke_mask().permute(0, 3, 1, 2)
-                mask = (regular_mask.type(torch.bool) | irregular_mask.type(torch.bool)).type(torch.float32).to(self.device)
+                mask = (regular_mask.type(torch.bool) | irregular_mask.type(torch.bool)).type(torch.float32).to(
+                    self.device)
                 batch_pos[0] = batch_pos[0].to(self.device)
                 batch_incomplete = batch_pos[0] * (torch.tensor(1.).to(self.device) - mask)
                 xin = batch_incomplete
@@ -82,13 +84,19 @@ class GAN:
                 pos_neg = self.dis(batch_pos_neg)
                 pos, neg = torch.split(pos_neg, pos_neg.shape[0] // 2)
                 g_loss, d_loss = gan_hinge_loss(pos, neg)
-                losses['g_loss'] = g_loss
-                losses['d_loss'] = d_loss
+                losses['g_loss'] = g_loss.to(self.device)
+                losses['d_loss'] = d_loss.to(self.device)
                 # TODO: error sum
+
+                losses['d_loss'].backward()
+                self.optimizerD.step()
+
+                losses['g_loss'].backward()
+                self.optimizerG.step()
                 # errD_real =
                 # errD_real.backward()
                 # D_x = output.mean().item()
-                self.gen.zero_grad()
+
 
 
 if __name__ == '__main__':

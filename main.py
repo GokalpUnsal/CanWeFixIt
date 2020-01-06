@@ -35,7 +35,7 @@ def main():
     # Create GAN
     network = GAN(device)
     network.train(dataset)
-
+    pass
 
 if __name__ == '__main__':
     main()
