@@ -61,15 +61,23 @@ class Generator(nn.Module):
         self.allconv17 = GatedConv2D(ch // 2, 3, activation=None)
 
     def forward(self, x, mask):
+        # x: input image with erased parts
+        # mask: binary tensor that shows erased parts
+
+        # prepare input channels
         xin = x
         ones_x = torch.ones_like(x)[:, 0:1, :, :]
         x = torch.cat([x, ones_x, ones_x * mask], dim=1)
+
+        # stage_1
         x = self.conv1(x)
         x = self.conv2_downsample(x)
         x = self.conv3(x)
         x = self.conv4_downsample(x)
         x = self.conv5(x)
         x = self.conv6(x)
+        # TODO: resize_mask_like
+        # mask_s = resize_mask_like(mask, x)
         x = self.conv7_atrous(x)
         x = self.conv8_atrous(x)
         x = self.conv9_atrous(x)
@@ -84,11 +92,14 @@ class Generator(nn.Module):
         x = torch.tanh(x)
         x_stage_1 = x
 
+        # prepare coarse result for stage 2
+        # put generated patch into input image without patch
         x = x * mask + xin[:, 0:3, :, :] * (1 - mask)
         x.reshape(xin[:, 0:3, :, :].shape)
+        x_branch = x
 
-        xnow = x
-        x = self.xconv1(xnow)
+        # convolution branch
+        x = self.xconv1(x_branch)
         x = self.xconv2_downsample(x)
         x = self.xconv3(x)
         x = self.xconv4_downsample(x)
@@ -98,20 +109,23 @@ class Generator(nn.Module):
         x = self.xconv8_atrous(x)
         x = self.xconv9_atrous(x)
         x = self.xconv10_atrous(x)
-        x_halu = x
+        x_conv = x
 
-        x = self.pmconv1(xnow)
+        # attention branch
+        x = self.pmconv1(x_branch)
         x = self.pmconv2_downsample(x)
         x = self.pmconv3(x)
         x = self.pmconv4_downsample(x)
         x = self.pmconv5(x)
         x = self.pmconv6(x)
         # TODO: contextual attention
+        # x, offset_flow = contextual_attention(x, x, mask_s, 3, 1, rate=2)
         x = self.pmconv9(x)
         x = self.pmconv10(x)
-        pm = x
+        x_att = x
 
-        x = torch.cat([x_halu, pm], dim=1)
+        # concatenate results from two branches and do the last convolutions
+        x = torch.cat([x_conv, x_att], dim=1)
         x = self.allconv11(x)
         x = self.allconv12(x)
         x = self.allconv13_upsample(x)
@@ -121,5 +135,6 @@ class Generator(nn.Module):
         x = self.allconv17(x)
         x = torch.tanh(x)
         x_stage_2 = x
+
+        # return stage 1, stage 2 and offset flow results
         return x_stage_1, x_stage_2, None  # TODO: Set offset_flow instead of None
-        # return x
