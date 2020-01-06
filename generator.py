@@ -15,7 +15,6 @@ class Generator(nn.Module):
         self.conv4_downsample = GatedConv2D(2 * ch, 4 * ch, stride=2)
         self.conv5 = GatedConv2D(4 * ch, 4 * ch)
         self.conv6 = GatedConv2D(4 * ch, 4 * ch)
-        # mask s but its resized in ours
         self.conv7_atrous = GatedConv2D(4 * ch, 4 * ch, dilation=2)
         self.conv8_atrous = GatedConv2D(4 * ch, 4 * ch, dilation=4)
         self.conv9_atrous = GatedConv2D(4 * ch, 4 * ch, dilation=8)
@@ -39,7 +38,6 @@ class Generator(nn.Module):
         self.xconv8_atrous = GatedConv2D(4 * ch, 4 * ch, dilation=4)
         self.xconv9_atrous = GatedConv2D(4 * ch, 4 * ch, dilation=8)
         self.xconv10_atrous = GatedConv2D(4 * ch, 4 * ch, dilation=16)
-        # x halu = x in forward
 
         # attention branch
         self.pmconv1 = GatedConv2D(3, ch, kernel_size=5)
@@ -51,7 +49,6 @@ class Generator(nn.Module):
         # TODO: contextual attention
         self.pmconv9 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv10 = GatedConv2D(4 * ch, 4 * ch)
-        # pm = x
 
         # concat xhalu and pm
 
