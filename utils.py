@@ -96,3 +96,14 @@ def bbox2mask(bbox, max_delta_height=32, max_delta_width=32, img_shape=(256, 256
     tensor = torch.tensor(mask)
     tensor.view([1] + [height, width] + [1])
     return tensor
+
+
+def resize_mask_like(mask, x):
+    """Resize mask like shape of x.
+    Args:
+        mask: Original mask.
+        x: To shape of x.
+    Returns:
+        torch.tensor: resized mask
+    """
+    return torch.nn.functional.interpolate(mask, size=x.shape[1:3])

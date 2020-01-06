@@ -1,4 +1,5 @@
 from layers import *
+from utils import resize_mask_like
 
 
 class Generator(nn.Module):
@@ -76,8 +77,7 @@ class Generator(nn.Module):
         x = self.conv4_downsample(x)
         x = self.conv5(x)
         x = self.conv6(x)
-        # TODO: resize_mask_like
-        # mask_s = resize_mask_like(mask, x)
+        mask_s = resize_mask_like(mask, x)
         x = self.conv7_atrous(x)
         x = self.conv8_atrous(x)
         x = self.conv9_atrous(x)
