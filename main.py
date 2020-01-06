@@ -22,6 +22,7 @@ def main():
                                        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                    ]))
 
+
     # real_batch = next(iter(dataloader))
     # plt.figure(figsize=(8, 8))
     # plt.axis("off")
