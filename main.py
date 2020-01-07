@@ -7,7 +7,6 @@ import os
 
 def main():
     dataroot = "./places2/"
-    batch_size = 1
     image_size = 256
 
     # Decide which device we want to run on
