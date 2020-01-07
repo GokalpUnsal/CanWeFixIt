@@ -66,7 +66,7 @@ class GAN:
                 _, d_loss = gan_hinge_loss(labels_pos, labels_neg)
                 losses['d_loss'] = d_loss.to(self.device)
                 D_losses.append(losses['d_loss'])
-                losses['d_loss'].backward()
+                losses['d_loss'].backward(retain_graph=True)
                 self.optimizerD.step()
 
                 # Generator l1 and GAN loss
@@ -79,5 +79,6 @@ class GAN:
                 g_loss = -torch.mean(labels_neg)
                 losses['g_loss'] = g_loss.to(self.device)
                 G_losses.append(losses['g_loss'])
-                losses['g_loss'].backward()
+                gen_loss = losses['g_loss'] + losses['ae_loss']
+                gen_loss.backward()
                 self.optimizerG.step()

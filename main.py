@@ -6,7 +6,7 @@ from gan import GAN
 
 
 def main():
-    dataroot = "./"
+    dataroot = "./places2/"
     batch_size = 1
     image_size = 256
 
@@ -16,8 +16,7 @@ def main():
     # Create the dataset
     dataset = datasets.ImageFolder(root=dataroot,
                                    transform=transforms.Compose([
-                                       transforms.Resize(image_size),
-                                       transforms.CenterCrop(image_size),
+                                       transforms.RandomCrop(image_size),
                                        transforms.ToTensor(),
                                        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                    ]))
