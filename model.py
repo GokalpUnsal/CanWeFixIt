@@ -61,7 +61,7 @@ class GAN:
                 batch_predicted = x2
                 batch_fake = (batch_predicted * mask + batch_incomplete * (torch.tensor(1.) - mask)).to(self.device)
                 batch_mixed = torch.cat([batch_real, batch_fake], dim=0).to(self.device)
-                batch_mixed = torch.cat((batch_mixed, torch.cat((mask,) * self.batch_size * 2)), dim=1).to(self.device)
+                batch_mixed = torch.cat((batch_mixed, torch.cat((mask,) * batch_mixed.shape[0])), dim=1).to(self.device)
                 # Discriminator output for both real and fake images
                 labels_mixed = self.dis(batch_mixed)
                 labels_pos, labels_neg = torch.split(labels_mixed, labels_mixed.shape[0] // 2)
