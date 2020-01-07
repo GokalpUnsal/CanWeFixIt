@@ -7,7 +7,7 @@ from torch import optim
 from util_ops import bbox2mask, brush_stroke_mask, random_bbox, gan_hinge_loss
 from discriminator import Discriminator
 from generator import Generator
-from visuals import plot_losses
+from visual_ops import plot_losses
 
 
 class GAN:

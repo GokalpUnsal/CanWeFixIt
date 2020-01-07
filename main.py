@@ -1,7 +1,8 @@
 import torch.utils.data
-from torchvision import datasets
-import torchvision.transforms as transforms
+
+
 import pickle
+from data_ops import import_data, preprocess
 from gan import GAN
 import os
 
@@ -14,12 +15,8 @@ def main():
     print("Device is " + str(device))
 
     # Create the dataset
-    dataset = datasets.ImageFolder(root=dataroot,
-                                   transform=transforms.Compose([
-                                       transforms.RandomCrop(image_size),
-                                       transforms.ToTensor(),
-                                       transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-                                   ]))
+    dataset = import_data(dataroot)
+    preprocess(dataset, image_size)
 
     # Create GAN
     network = GAN(device)
