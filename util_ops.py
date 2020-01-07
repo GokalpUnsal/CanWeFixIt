@@ -3,12 +3,6 @@ import numpy as np
 import torch
 
 
-def inpaint_image(self, image, mask):
-    image_incomplete = image * (torch.tensor(1.) - mask)
-    _, prediction, _ = self.gen(image_incomplete, mask)
-    return prediction
-
-
 def random_bbox(width=128, height=128, vertical_margin=0, horizontal_margin=0, img_shape=(256, 256, 3)):
     """Generate a random tlhw.
     Returns:

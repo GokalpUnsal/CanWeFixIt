@@ -4,8 +4,8 @@ import pickle
 from torchvision import datasets, transforms
 
 
-def import_data(dataroot):
-    return datasets.ImageFolder(root=dataroot)
+def import_data(data_root):
+    return datasets.ImageFolder(root=data_root)
 
 
 def preprocess(dataset, image_size):
@@ -24,7 +24,9 @@ def export_model(model, model_path):
 
 
 def import_model(model_path):
+    loaded_model = None
     if os.path.isfile(model_path):
         with open(model_path, 'rb') as f:
             loaded_model = pickle.load(f)
             f.close()
+    return loaded_model

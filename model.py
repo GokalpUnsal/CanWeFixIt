@@ -4,7 +4,8 @@ import torch
 from torch import optim
 
 import params
-from layers import Generator, Discriminator
+from generator import Generator
+from layers import Discriminator
 from util_ops import bbox2mask, brush_stroke_mask, random_bbox, gan_hinge_loss
 from visual_ops import plot_losses
 
@@ -17,8 +18,8 @@ class GAN:
         self.dis = Discriminator().to(self.device)
 
         # Hyperparameters
-        self.num_epochs = 10
-        self.batch_size = 4
+        self.num_epochs = params.num_epochs
+        self.batch_size = params.batch_size
 
         self.lr = 1e-4  # 0.0002
         self.beta1 = 0.5
