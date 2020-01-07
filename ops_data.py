@@ -1,5 +1,6 @@
 import os
 import pickle
+import torch
 
 from torchvision import datasets, transforms
 
@@ -17,16 +18,9 @@ def preprocess(dataset, image_size):
 
 
 def export_model(model, model_path):
-    if not os.path.isfile(model_path):
-        with open(model_path, 'wb') as f:
-            pickle.dump(model, f)
-            f.close()
-
+    torch.save(model,model_path)
 
 def import_model(model_path):
     loaded_model = None
-    if os.path.isfile(model_path):
-        with open(model_path, 'rb') as f:
-            loaded_model = pickle.load(f)
-            f.close()
+    torch.load(model_path)
     return loaded_model
