@@ -1,4 +1,7 @@
-from layers import *
+import torch
+from torch import nn
+
+from layers import SpectralConv2D
 
 
 class Discriminator(nn.Module):

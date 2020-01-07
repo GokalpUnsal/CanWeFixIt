@@ -2,7 +2,7 @@ import torch.utils.data
 from torchvision import datasets
 import torchvision.transforms as transforms
 
-from gan import *
+from gan import GAN
 
 
 def main():

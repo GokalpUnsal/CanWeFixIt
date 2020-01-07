@@ -3,7 +3,7 @@ import random
 import torch
 from torch import optim
 
-from utils import bbox2mask, brush_stroke_mask, random_bbox, gan_hinge_loss
+from util_ops import bbox2mask, brush_stroke_mask, random_bbox, gan_hinge_loss
 from discriminator import Discriminator
 from generator import Generator
 

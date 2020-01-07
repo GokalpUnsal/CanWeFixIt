@@ -3,7 +3,7 @@ import numpy as np
 import wx
 from wx.core import wx
 
-from utils import brush_stroke_mask
+from util_ops import brush_stroke_mask
 
 
 class CanWeFixItGUI(wx.Frame):
