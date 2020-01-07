@@ -1,6 +1,7 @@
 import random
 
 import torch
+import torch.utils.data as tud
 from torch import optim
 
 from util_ops import bbox2mask, brush_stroke_mask, random_bbox, gan_hinge_loss
@@ -34,7 +35,7 @@ class GAN:
 
     def train(self, dataset):
         # Create the dataloader
-        dataloader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
+        dataloader = tud.DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
         G_losses = []
         D_losses = []
         iters = 0
@@ -52,7 +53,6 @@ class GAN:
                 mask = random.choice([regular_mask, irregular_mask]).to(self.device)
                 batch_incomplete = batch_real * (torch.tensor(1.) - mask)
                 xin = batch_incomplete.to(self.device)
-                losses = {}
 
                 # Discriminator forward pass and GAN loss
                 self.dis.zero_grad()
@@ -66,24 +66,25 @@ class GAN:
                 labels_mixed = self.dis(batch_mixed)
                 labels_pos, labels_neg = torch.split(labels_mixed, labels_mixed.shape[0] // 2)
                 _, d_loss = gan_hinge_loss(labels_pos, labels_neg)
-                losses['d_loss'] = d_loss.to(self.device)
-                print("Discriminator Loss: " + str(losses['d_loss'].item()))
-                D_losses.append(losses['d_loss'])
-                losses['d_loss'].backward(retain_graph=True)
+                dis_loss = d_loss.to(self.device)
+                print("Discriminator Loss: " + str(dis_loss.item()))
+                D_losses.append(dis_loss)
+                dis_loss.backward(retain_graph=True)
                 self.optimizerD.step()
 
                 # Generator l1 and GAN loss
                 self.gen.zero_grad()
-                losses['ae_loss'] = self.l1_loss_alpha * (torch.mean(torch.abs(batch_real - x1)) +
-                                                          torch.mean(torch.abs(batch_real - x2)))
+                l1_loss = self.l1_loss_alpha * (torch.mean(torch.abs(batch_real - x1)) +
+                                                torch.mean(torch.abs(batch_real - x2)))
+                l1_loss = l1_loss.to(self.device)
                 # Discriminator output for only fake images
                 batch_fake = torch.cat((batch_fake, torch.cat((mask,) * self.batch_size)), dim=1)
                 labels_neg = self.dis(batch_fake)
                 g_loss = -torch.mean(labels_neg)
-                losses['g_loss'] = g_loss.to(self.device)
-                print("Generator Loss: " + str(losses['g_loss'].item()))
-                G_losses.append(losses['g_loss'])
-                gen_loss = losses['g_loss'] + losses['ae_loss']
+                gen_loss = g_loss.to(self.device)
+                print("Generator Loss: " + str(gen_loss.item()))
+                G_losses.append(gen_loss)
+                gen_loss = gen_loss + l1_loss
                 gen_loss.backward()
                 self.optimizerG.step()
 
