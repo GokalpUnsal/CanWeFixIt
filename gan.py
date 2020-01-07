@@ -48,25 +48,24 @@ class GAN:
                 # Prepare batch
                 batch_real = batch_data[0].to(self.device)
                 bbox = random_bbox()
-                regular_mask = bbox2mask(bbox).to(self.device)
-                irregular_mask = brush_stroke_mask().to(self.device)
+                regular_mask = bbox2mask(bbox)
+                irregular_mask = brush_stroke_mask()
                 mask = random.choice([regular_mask, irregular_mask]).to(self.device)
-                batch_incomplete = (batch_real * (torch.tensor(1.) - mask)).to(self.device)
-                xin = batch_incomplete.to(self.device)
-
+                batch_incomplete = (batch_real * (torch.tensor(1., device=self.device) - mask)).to(self.device)
+                xin = batch_incomplete
                 # Discriminator forward pass and GAN loss
                 self.dis.zero_grad()
                 # Generator output
                 x1, x2, _ = self.gen(xin, mask)
-                batch_predicted = x2.to(self.device)
+                batch_predicted = x2
                 batch_fake = (batch_predicted * mask + batch_incomplete * (torch.tensor(1.) - mask)).to(self.device)
                 batch_mixed = torch.cat([batch_real, batch_fake], dim=0).to(self.device)
                 batch_mixed = torch.cat((batch_mixed, torch.cat((mask,) * self.batch_size * 2)), dim=1).to(self.device)
                 # Discriminator output for both real and fake images
                 labels_mixed = self.dis(batch_mixed)
                 labels_pos, labels_neg = torch.split(labels_mixed, labels_mixed.shape[0] // 2)
-                _, d_loss = gan_hinge_loss(labels_pos, labels_neg,self.device)
-                dis_loss = d_loss.to(self.device)
+                _, d_loss = gan_hinge_loss(labels_pos, labels_neg, self.device)
+                dis_loss = d_loss
                 print("Discriminator Loss: " + str(dis_loss.item()))
                 D_losses.append(dis_loss)
                 dis_loss.backward(retain_graph=True)

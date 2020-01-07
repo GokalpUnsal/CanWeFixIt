@@ -114,7 +114,7 @@ def gan_hinge_loss(pos, neg, device):
     """
     hinge_pos = torch.mean(torch.nn.functional.relu(1 - pos)).to(device)
     hinge_neg = torch.mean(torch.nn.functional.relu(1 + neg)).to(device)
-    d_loss =(torch.tensor(.5).to(device) * hinge_pos + torch.tensor(.5).to(device) * hinge_neg)
+    d_loss =(torch.tensor(.5, device=device) * hinge_pos + torch.tensor(.5, device=device) * hinge_neg)
     g_loss = (-torch.mean(neg))
     return g_loss, d_loss
 
