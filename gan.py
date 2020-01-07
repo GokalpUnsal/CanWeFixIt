@@ -43,13 +43,13 @@ class GAN:
         for epoch in range(self.num_epochs):
             for i, batch_data in enumerate(dataloader, 0):
                 # Prepare batch
-                batch_real = batch_data[0]
+                batch_real = batch_data[0].to(self.device)
                 bbox = random_bbox()
-                regular_mask = bbox2mask(bbox).permute(0, 3, 1, 2)
-                irregular_mask = brush_stroke_mask().permute(0, 3, 1, 2)
-                mask = random.choice([regular_mask, irregular_mask])
+                regular_mask = bbox2mask(bbox)
+                irregular_mask = brush_stroke_mask()
+                mask = random.choice([regular_mask, irregular_mask]).to(self.device)
                 batch_incomplete = batch_real * (torch.tensor(1.) - mask)
-                xin = batch_incomplete
+                xin = batch_incomplete.to(self.device)
                 losses = {}
 
                 # Discriminator forward pass and GAN loss
