@@ -1,21 +1,20 @@
 import random
 
 import torch
-import torch.utils.data as tud
 from torch import optim
 
+import params
+from layers import Generator, Discriminator
 from util_ops import bbox2mask, brush_stroke_mask, random_bbox, gan_hinge_loss
-from discriminator import Discriminator
-from generator import Generator
 from visual_ops import plot_losses
 
 
 class GAN:
-    def __init__(self, device):
-        self.device = device
+    def __init__(self):
+        self.device = params.device
         self.dtype = torch.float32
-        self.gen = Generator().to(device)
-        self.dis = Discriminator().to(device)
+        self.gen = Generator().to(self.device)
+        self.dis = Discriminator().to(self.device)
 
         # Hyperparameters
         self.num_epochs = 10
@@ -34,9 +33,7 @@ class GAN:
         self.optimizerD = optim.Adam(self.dis.parameters(), lr=self.lr, betas=(self.beta1, self.beta2))
         self.optimizerG = optim.Adam(self.gen.parameters(), lr=self.lr, betas=(self.beta1, self.beta2))
 
-    def train_gan(self, dataset):
-        # Create the dataloader
-        dataloader = tud.DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
+    def train_gan(self, dataloader):
         G_losses = []
         D_losses = []
         iters = 0
@@ -83,15 +80,9 @@ class GAN:
                 g_loss = g_loss + l1_loss
                 g_loss.backward()
                 self.optimizerG.step()
-                #if iters % 100 == 0:
+                # if iters % 100 == 0:
                 print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:.5f}, d_loss = {:.5f}"
                       .format(epoch + 1, self.num_epochs, iters + 1, gen_loss.item(), dis_loss.item()))
                 iters += 1
 
         plot_losses(G_losses, D_losses)
-
-
-    def inpaint_image(self, image, mask):
-        image_incomplete = image * (torch.tensor(1.) - mask)
-        _, prediction, _ = self.gen(image_incomplete, mask)
-        return prediction

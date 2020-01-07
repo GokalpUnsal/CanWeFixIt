@@ -3,6 +3,12 @@ import numpy as np
 import torch
 
 
+def inpaint_image(self, image, mask):
+    image_incomplete = image * (torch.tensor(1.) - mask)
+    _, prediction, _ = self.gen(image_incomplete, mask)
+    return prediction
+
+
 def random_bbox(width=128, height=128, vertical_margin=0, horizontal_margin=0, img_shape=(256, 256, 3)):
     """Generate a random tlhw.
     Returns:
@@ -114,20 +120,20 @@ def gan_hinge_loss(pos, neg, device):
     """
     hinge_pos = torch.mean(torch.nn.functional.relu(1 - pos)).to(device)
     hinge_neg = torch.mean(torch.nn.functional.relu(1 + neg)).to(device)
-    d_loss =(torch.tensor(.5, device=device) * hinge_pos + torch.tensor(.5, device=device) * hinge_neg)
+    d_loss = (torch.tensor(.5, device=device) * hinge_pos + torch.tensor(.5, device=device) * hinge_neg)
     g_loss = (-torch.mean(neg))
     return g_loss, d_loss
 
 
 def extract_image_patches(images, ksizes, strides, rates, padding='same'):
     batch_s, channel, height, width = images.size()
-    if padding=='same':
+    if padding == 'same':
         # TODO: same padding
         images = same_padding(images, ksizes, strides, rates)
         pass
     else:
         pass
-    unfold = torch.nn.Unfold(kernel_size=ksizes,dilation=rates, padding=0, stride=strides)
+    unfold = torch.nn.Unfold(kernel_size=ksizes, dilation=rates, padding=0, stride=strides)
     patches = unfold(images)
     return patches
 
@@ -139,8 +145,8 @@ def same_padding(images, ksizes, strides, rates):
     out_cols = (cols + strides[1] - 1) // strides[1]
     effective_k_row = (ksizes[0] - 1) * rates[0] + 1
     effective_k_col = (ksizes[1] - 1) * rates[1] + 1
-    padding_rows = max(0, (out_rows-1)*strides[0]+effective_k_row-rows)
-    padding_cols = max(0, (out_cols-1)*strides[1]+effective_k_col-cols)
+    padding_rows = max(0, (out_rows - 1) * strides[0] + effective_k_row - rows)
+    padding_cols = max(0, (out_cols - 1) * strides[1] + effective_k_col - cols)
     # Pad the input
     padding_top = int(padding_rows / 2.)
     padding_left = int(padding_cols / 2.)
@@ -150,6 +156,7 @@ def same_padding(images, ksizes, strides, rates):
     images = torch.nn.ZeroPad2d(paddings)(images)
     return images
 
+
 def reduce_mean(x, axis=None, keepdim=False):
     if not axis:
         axis = range(len(x.shape))
@@ -157,12 +164,14 @@ def reduce_mean(x, axis=None, keepdim=False):
         x = torch.mean(x, dim=i, keepdim=keepdim)
     return x
 
+
 def reduce_sum(x, axis=None, keepdim=False):
     if not axis:
         axis = range(len(x.shape))
     for i in sorted(axis, reverse=True):
         x = torch.sum(x, dim=i, keepdim=keepdim)
     return x
+
 
 def flow_to_image(flow):
     """Transfer flow map to image.
@@ -230,7 +239,6 @@ def pt_flow_to_image(flow):
     return torch.stack(out, dim=0)
 
 
-
 def compute_color(u, v):
     h, w = u.shape
     img = np.zeros([h, w, 3])
@@ -289,5 +297,3 @@ def make_color_wheel():
     colorwheel[col:col + MR, 2] = 255 - np.transpose(np.floor(255 * np.arange(0, MR) / MR))
     colorwheel[col:col + MR, 0] = 255
     return colorwheel
-
-

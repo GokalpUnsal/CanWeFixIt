@@ -10,3 +10,4 @@ def plot_losses(g_losses, d_losses):
     plt.ylabel("Loss")
     plt.legend()
     plt.show()
+
