@@ -7,6 +7,7 @@ from torch import optim
 from util_ops import bbox2mask, brush_stroke_mask, random_bbox, gan_hinge_loss
 from discriminator import Discriminator
 from generator import Generator
+from visuals import plot_losses
 
 
 class GAN:
@@ -18,7 +19,7 @@ class GAN:
 
         # Hyperparameters
         self.num_epochs = 10
-        self.batch_size = 8
+        self.batch_size = 4
 
         self.lr = 1e-4  # 0.0002
         self.beta1 = 0.5
@@ -64,8 +65,8 @@ class GAN:
                 labels_pos, labels_neg = torch.split(labels_mixed, labels_mixed.shape[0] // 2)
                 _, d_loss = gan_hinge_loss(labels_pos, labels_neg, self.device)
                 dis_loss = d_loss
-                D_losses.append(dis_loss.item())
-                dis_loss.backward(retain_graph=True)
+                D_losses.append(d_loss.item())
+                d_loss.backward(retain_graph=True)
                 self.optimizerD.step()
                 # Generator l1 and GAN loss
                 self.gen.zero_grad()
@@ -76,15 +77,19 @@ class GAN:
                 batch_fake = torch.cat((batch_fake, torch.cat((mask,) * self.batch_size)), dim=1)
                 labels_neg = self.dis(batch_fake)
                 g_loss = -torch.mean(labels_neg)
-                gen_loss = g_loss.to(self.device)
-                G_losses.append(gen_loss.item())
-                gen_loss = gen_loss + l1_loss
-                gen_loss.backward()
+                gen_loss = g_loss
+                g_loss = g_loss.to(self.device)
+                G_losses.append(g_loss.item())
+                g_loss = g_loss + l1_loss
+                g_loss.backward()
                 self.optimizerG.step()
                 #if iters % 100 == 0:
-                print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:4f}, d_loss = {:4f}"
+                print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:.5f}, d_loss = {:.5f}"
                       .format(epoch + 1, self.num_epochs, iters + 1, gen_loss.item(), dis_loss.item()))
-                iters += 2
+                iters += 1
+
+        plot_losses(G_losses, D_losses)
+
 
     def inpaint_image(self, image, mask):
         image_incomplete = image * (torch.tensor(1.) - mask)
