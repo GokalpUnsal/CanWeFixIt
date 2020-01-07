@@ -89,7 +89,7 @@ class CanWeFixItGUI(wx.Frame):
         cv2.imwrite("mask_%s" % self.filename, self.mask_img)
 
     def onGenerateRandomMask(self, e):
-        random_mask = brush_stroke_mask().permute(1, 2, 0, 3).numpy()[:, :, :, -1]
+        random_mask = brush_stroke_mask().permute(2, 3, 1, 0).numpy()[:, :, :, -1]
         for i in range(len(random_mask)):
             for j in range(len(random_mask[i])):
                 if random_mask[i][j] == 1:
