@@ -55,8 +55,8 @@ class Generator(nn.Module):
         self.pmconv5 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv6 = GatedConv2D(4 * ch, 4 * ch, activation=fun.relu)
         # TODO: contextual attention
-        self.contextul_attention = ContextualAttention(ksize=3, stride=1, rate=2, fuse_k=3, softmax_scale=10,
-                                                       fuse=True, use_cuda=self.use_cuda)
+        # self.contextul_attention = ContextualAttention(ksize=3, stride=1, rate=2, fuse_k=3, softmax_scale=10,
+        #                                                fuse=True, use_cuda=self.use_cuda)
         self.pmconv9 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv10 = GatedConv2D(4 * ch, 4 * ch)
 
@@ -128,7 +128,7 @@ class Generator(nn.Module):
         x = self.pmconv5(x)
         x = self.pmconv6(x)
         # TODO: contextual attention
-        x, flow = self.contextul_attention(x, x, mask)
+        # x, flow = self.contextul_attention(x, x, mask)
         # x, offset_flow = contextual_attention(x, x, mask_s, 3, 1, rate=2)
         x = self.pmconv9(x)
         x = self.pmconv10(x)
@@ -150,6 +150,7 @@ class Generator(nn.Module):
         return x_stage_1, x_stage_2, None  # TODO: Set offset_flow instead of None
 
     def inpaint_image(self, image, mask):
-        image_incomplete = image * (torch.tensor(1.) - mask)
-        _, prediction, _ = self(image_incomplete, mask)
-        return prediction
+        with torch.no_grad():
+            image_incomplete = image * (torch.tensor(1.) - mask)
+            _, prediction, _ = self(image_incomplete, mask)
+            return prediction

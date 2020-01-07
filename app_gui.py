@@ -2,13 +2,19 @@ import cv2
 import numpy as np
 import wx
 from wx.core import wx
-
+import torch
+import matplotlib.pyplot as plt
+import params
+from ops_data import import_model
 from ops_util import brush_stroke_mask
+from generator import Generator
+from torchvision import transforms
+
 
 
 class CanWeFixItGUI(wx.Frame):
-    MAX_WIDTH = 512
-    MAX_HEIGHT = 512
+    MAX_WIDTH = 256
+    MAX_HEIGHT = 256
 
     def __init__(self, parent, id, title):
         wx.Frame.__init__(self,
@@ -83,7 +89,24 @@ class CanWeFixItGUI(wx.Frame):
         dlg.Destroy()
 
     def onInpaint(self, e):
-        pass
+        gen = import_model(params.model_path)
+        org = torch.from_numpy(self.original_img).type(params.dtype).unsqueeze(0).permute(0, 3, 1, 2).to(params.device)
+        msk = torch.from_numpy(self.mask_img).type(params.dtype).unsqueeze(0).permute(0, 3, 1, 2).to(params.device)
+        img = gen.inpaint_image(org, msk)
+
+        img = img.permute(0, 2, 3, 1).squeeze(0)
+        img = img.cpu()
+        # img = img.detach().numpy()
+        mean = torch.mean(img)
+        std = torch.std(img)
+        # torch.distributions.transforms.F.normalize()
+        img = (img - mean) / std
+        img = (img + 1) / 2
+        img = img.data
+        print(img)
+        plt.imshow(img)
+        plt.show()
+        # cv2.imshow("image",img)
 
     def onExportMask(self, e):
         cv2.imwrite("mask_%s" % self.filename, self.mask_img)
