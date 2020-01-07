@@ -68,8 +68,8 @@ class GAN:
                 losses['ae_loss'] += torch.mean(torch.abs(batch_pos[0] - x2), dim=-1)
 
                 batch_pos_neg = torch.cat([batch_pos[0], batch_complete], dim=0)
-                # TODO: torch tile
-                # batch_pos_neg = torch.cat([batch_pos_neg, torch.tile(mask, [self.batch_size * 2, 1, 1, 1])], dim=3)
+                batch_pos_neg = torch.cat((batch_pos_neg, torch.cat((mask,) * self.batch_size * 2)), dim=1)
+                # TODO: hinge loss
 
                 # Forward pass for discriminator
                 self.dis.zero_grad()
