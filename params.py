@@ -14,10 +14,10 @@ ch_gen = 48
 ch_dis = 64
 
 # training
-num_epochs = 1
+num_epochs = 100
 batch_size = 8
 
-lr = 1e-3
+lr = 1e-4
 beta1 = 0.5
 beta2 = 0.999
 l1_loss_alpha = 1
