@@ -22,20 +22,11 @@ def main():
                                        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                    ]))
 
-
-    # real_batch = next(iter(dataloader))
-    # plt.figure(figsize=(8, 8))
-    # plt.axis("off")
-    # plt.title("Training Images")
-    # a = np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu(), (1, 2, 0))
-    # plt.imshow(a
-    #     )
-    # plt.show()
-
     # Create GAN
     network = GAN(device)
     network.train(dataset)
     pass
+
 
 if __name__ == '__main__':
     main()
