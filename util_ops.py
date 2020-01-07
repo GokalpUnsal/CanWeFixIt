@@ -107,15 +107,15 @@ def resize_mask_like(mask, x):
     return torch.nn.functional.interpolate(mask, size=x.shape[2:])
 
 
-def gan_hinge_loss(pos, neg, value=1.):
+def gan_hinge_loss(pos, neg, device):
     """
     gan with hinge loss:
     https://github.com/JiahuiYu/neuralgym/blob/master/neuralgym/ops/gan_ops.py
     """
-    hinge_pos = torch.mean(torch.nn.functional.relu(1 - pos))
-    hinge_neg = torch.mean(torch.nn.functional.relu(1 + neg))
-    d_loss = torch.tensor(.5) * hinge_pos + torch.tensor(.5) * hinge_neg
-    g_loss = -torch.mean(neg)
+    hinge_pos = torch.mean(torch.nn.functional.relu(1 - pos)).to(device)
+    hinge_neg = torch.mean(torch.nn.functional.relu(1 + neg)).to(device)
+    d_loss =(torch.tensor(.5).to(device) * hinge_pos + torch.tensor(.5).to(device) * hinge_neg)
+    g_loss = (-torch.mean(neg))
     return g_loss, d_loss
 
 
@@ -289,3 +289,5 @@ def make_color_wheel():
     colorwheel[col:col + MR, 2] = 255 - np.transpose(np.floor(255 * np.arange(0, MR) / MR))
     colorwheel[col:col + MR, 0] = 255
     return colorwheel
+
+
