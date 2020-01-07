@@ -51,7 +51,6 @@ class Generator(nn.Module):
         self.pmconv5 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv6 = GatedConv2D(4 * ch, 4 * ch, activation=F.relu)
         # TODO: contextual attention
-        self.contextual_attention = ContextualAttention(ksize=3, stride=1, rate=2, fuse_k=3, softmax_scale=10, fuse=True)
         self.pmconv9 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv10 = GatedConv2D(4 * ch, 4 * ch)
 
@@ -123,7 +122,6 @@ class Generator(nn.Module):
         x = self.pmconv5(x)
         x = self.pmconv6(x)
         # TODO: contextual attention
-        x, flow = self.contextual_attention(x, x, mask)
         # x, offset_flow = contextual_attention(x, x, mask_s, 3, 1, rate=2)
         x = self.pmconv9(x)
         x = self.pmconv10(x)
@@ -142,4 +140,4 @@ class Generator(nn.Module):
         x_stage_2 = x
 
         # return stage 1, stage 2 and offset flow results
-        return x_stage_1, x_stage_2, flow  # TODO: Set offset_flow instead of None
+        return x_stage_1, x_stage_2, None  # TODO: Set offset_flow instead of None
