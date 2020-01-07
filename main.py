@@ -1,14 +1,11 @@
-import torch.utils.data
-
-from data_ops import import_data, preprocess
-import torch.utils.data as tud
-from model import GAN
 import params
+import torch.utils.data as tud
+from ops_data import import_data, preprocess
+from model import GAN
 
 
 def main():
     # Decide which device we want to run on
-    params.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print("Device is " + str(params.device))
 
     # Create the dataset

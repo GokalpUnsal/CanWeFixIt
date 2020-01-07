@@ -3,7 +3,7 @@ import torch.nn.functional as fun
 from torch import nn
 
 import params
-from util_ops import *
+from ops_util import *
 
 
 class Discriminator(nn.Module):

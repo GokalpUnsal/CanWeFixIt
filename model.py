@@ -6,25 +6,24 @@ from torch import optim
 import params
 from generator import Generator
 from layers import Discriminator
-from util_ops import bbox2mask, brush_stroke_mask, random_bbox, gan_hinge_loss
-from visual_ops import plot_losses
+from ops_util import bbox2mask, brush_stroke_mask, random_bbox, gan_hinge_loss
+from ops_visual import plot_losses
 
 
 class GAN:
     def __init__(self):
         self.device = params.device
-        self.dtype = torch.float32
+        self.dtype = params.dtype
         self.gen = Generator(self.device).to(self.device)
         self.dis = Discriminator().to(self.device)
 
         # Hyperparameters
         self.num_epochs = params.num_epochs
         self.batch_size = params.batch_size
-
-        self.lr = 1e-4  # 0.0002
-        self.beta1 = 0.5
-        self.beta2 = 0.999
-        self.l1_loss_alpha = 1
+        self.lr = params.lr
+        self.beta1 = params.beta1
+        self.beta2 = params.beta2
+        self.l1_loss_alpha = params.l1_loss_alpha
 
         # Establish convention for real and fake labels during training
         self.real_label = 1
@@ -37,6 +36,7 @@ class GAN:
     def train_gan(self, dataloader):
         G_losses = []
         D_losses = []
+        L_losses = []
         iters = 0
         self.gen.train()
         self.dis.train()
@@ -70,7 +70,7 @@ class GAN:
                 self.gen.zero_grad()
                 l1_loss = self.l1_loss_alpha * (torch.mean(torch.abs(batch_real - x1)) +
                                                 torch.mean(torch.abs(batch_real - x2)))
-                l1_loss = l1_loss
+                L_losses.append(l1_loss.item())
                 # Discriminator output for only fake images
                 batch_fake = torch.cat((batch_fake, torch.cat((mask,) * self.batch_size)), dim=1)
                 labels_neg = self.dis(batch_fake)
@@ -81,9 +81,9 @@ class GAN:
                 g_loss = g_loss + l1_loss
                 g_loss.backward()
                 self.optimizerG.step()
-                # if iters % 100 == 0:
-                print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:.5f}, d_loss = {:.5f}"
-                      .format(epoch + 1, self.num_epochs, iters + 1, gen_loss.item(), dis_loss.item()))
+                if iters % 1000 == 0:
+                    print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:.5f}, d_loss = {:.5f}"
+                          .format(epoch + 1, self.num_epochs, iters, gen_loss.item(), dis_loss.item()))
                 iters += 1
 
         plot_losses(G_losses, D_losses)

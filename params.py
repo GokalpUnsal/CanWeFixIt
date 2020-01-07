@@ -1,9 +1,12 @@
 # cpu/gpu
-device = None
+import torch
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # data
-image_size = 256
 data_root = "./places2/"
+dtype = torch.float32
+image_size = 256
 
 # model
 model_path = "./model.pth"

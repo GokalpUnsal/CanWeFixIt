@@ -4,7 +4,7 @@ from torch import nn
 
 import params
 from layers import GatedConv2D, GatedDeconv2D
-from util_ops import resize_mask_like
+from ops_util import resize_mask_like
 
 
 class Generator(nn.Module):
