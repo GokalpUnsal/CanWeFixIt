@@ -74,6 +74,7 @@ class GAN:
                 losses['ae_loss'] = self.l1_loss_alpha * (torch.mean(torch.abs(batch_real - x1)) +
                                                           torch.mean(torch.abs(batch_real - x2)))
                 # Discriminator output for only fake images
+                batch_fake = torch.cat((batch_fake, torch.cat((mask,) * self.batch_size)), dim=1)
                 labels_neg = self.dis(batch_fake)
                 g_loss = -torch.mean(labels_neg)
                 losses['g_loss'] = g_loss.to(self.device)
