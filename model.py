@@ -14,7 +14,7 @@ class GAN:
     def __init__(self):
         self.device = params.device
         self.dtype = torch.float32
-        self.gen = Generator().to(self.device)
+        self.gen = Generator(self.device).to(self.device)
         self.dis = Discriminator().to(self.device)
 
         # Hyperparameters
