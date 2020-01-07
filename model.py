@@ -40,14 +40,18 @@ class GAN:
         iters = 0
         self.gen.train()
         self.dis.train()
+
+        bbox = random_bbox()
+        mask = bbox2mask(bbox).to(self.device)
+
         for epoch in range(self.num_epochs):
             for i, batch_data in enumerate(dataloader, 0):
                 # Prepare batch
                 batch_real = batch_data[0].to(self.device)
-                bbox = random_bbox()
-                regular_mask = bbox2mask(bbox)
-                irregular_mask = brush_stroke_mask()
-                mask = random.choice([regular_mask, irregular_mask]).to(self.device)
+                #bbox = random_bbox()
+                #regular_mask = bbox2mask(bbox)
+                #irregular_mask = brush_stroke_mask()
+                #mask = random.choice([regular_mask, irregular_mask]).to(self.device)
                 batch_incomplete = (batch_real * (torch.tensor(1., device=self.device) - mask)).to(self.device)
                 xin = batch_incomplete
                 # Discriminator forward pass and GAN loss
@@ -81,7 +85,7 @@ class GAN:
                 g_loss = g_loss + l1_loss
                 g_loss.backward()
                 self.optimizerG.step()
-                if iters % 100 == 0:
+                if iters % 10 == 0:
                     print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:.5f}, d_loss = {:.5f}"
                           .format(epoch + 1, self.num_epochs, iters, gen_loss.item(), dis_loss.item()))
                 iters += 1

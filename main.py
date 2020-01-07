@@ -17,7 +17,7 @@ def main():
     network = GAN()
     network.train_gan(dataloader)
 
-    export_model(network.gen)
+    export_model(network.gen, params.model_path)
 
 
 if __name__ == '__main__':

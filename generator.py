@@ -11,8 +11,9 @@ class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
         if params.device.type == "cuda":
-            self.use_cuda=True
-        else: self.use_cuda=False
+            self.use_cuda = True
+        else:
+            self.use_cuda = False
         ch = params.ch_gen
 
         # stage_1
