@@ -108,13 +108,14 @@ def resize_mask_like(mask, x):
     """
     return torch.nn.functional.interpolate(mask, size=x.shape[1:3])
 
+
 def gan_hinge_loss(pos, neg, value=1.):
     """
     gan with hinge loss:
     https://github.com/JiahuiYu/neuralgym/blob/master/neuralgym/ops/gan_ops.py
     """
-    hinge_pos = torch.mean(torch.nn.functional.relu(1-pos), dim=-1)
-    hinge_neg = torch.mean(torch.nn.functional.relu(1+neg), dim=-1)
+    hinge_pos = torch.mean(torch.nn.functional.relu(1 - pos), dim=-1)
+    hinge_neg = torch.mean(torch.nn.functional.relu(1 + neg), dim=-1)
     d_loss = torch.tensor(.5) * hinge_pos + torch.tensor(.5) * hinge_neg
     g_loss = -torch.mean(neg, dim=-1)
     return g_loss, d_loss
