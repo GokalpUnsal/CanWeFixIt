@@ -4,7 +4,7 @@ import torch
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # data
-data_root = "./places2/toy/"
+data_root = "./places2/"
 dtype = torch.float32
 image_size = 256
 
@@ -16,6 +16,7 @@ ch_dis = 64
 # training
 num_epochs = 100
 batch_size = 8
+
 
 lr = 1e-4
 beta1 = 0.5
