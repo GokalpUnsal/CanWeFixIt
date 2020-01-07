@@ -3,14 +3,16 @@ import torch.nn.functional as fun
 from torch import nn
 
 import params
-from layers import GatedConv2D, GatedDeconv2D
+from layers import GatedConv2D, GatedDeconv2D, ContextualAttention
 from ops_util import resize_mask_like
 
 
 class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
-
+        if params.device.type == "cuda":
+            self.use_cuda=True
+        else: self.use_cuda=False
         ch = params.ch_gen
 
         # stage_1
@@ -52,6 +54,8 @@ class Generator(nn.Module):
         self.pmconv5 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv6 = GatedConv2D(4 * ch, 4 * ch, activation=fun.relu)
         # TODO: contextual attention
+        self.contextul_attention = ContextualAttention(ksize=3, stride=1, rate=2, fuse_k=3, softmax_scale=10,
+                                                       fuse=True, use_cuda=self.use_cuda)
         self.pmconv9 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv10 = GatedConv2D(4 * ch, 4 * ch)
 
@@ -123,6 +127,7 @@ class Generator(nn.Module):
         x = self.pmconv5(x)
         x = self.pmconv6(x)
         # TODO: contextual attention
+        x, flow = self.contextul_attention(x, x, mask)
         # x, offset_flow = contextual_attention(x, x, mask_s, 3, 1, rate=2)
         x = self.pmconv9(x)
         x = self.pmconv10(x)
