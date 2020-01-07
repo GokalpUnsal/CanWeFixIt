@@ -6,7 +6,7 @@ from gan import GAN
 
 
 def main():
-    dataroot = "./"
+    dataroot = "./places2/"
     batch_size = 1
     image_size = 256
 
