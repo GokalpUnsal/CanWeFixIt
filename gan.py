@@ -17,7 +17,7 @@ class GAN:
         self.dis = Discriminator().to(device)
 
         # Hyperparameters
-        self.num_epochs = 5
+        self.num_epochs = 10
         self.batch_size = 8
 
         self.lr = 1e-4  # 0.0002
@@ -43,8 +43,6 @@ class GAN:
         self.dis.train()
         for epoch in range(self.num_epochs):
             for i, batch_data in enumerate(dataloader, 0):
-                print("Epoch " + str(epoch + 1) + ", iteration " + str(i + 1))
-
                 # Prepare batch
                 batch_real = batch_data[0].to(self.device)
                 bbox = random_bbox()
@@ -66,25 +64,27 @@ class GAN:
                 labels_pos, labels_neg = torch.split(labels_mixed, labels_mixed.shape[0] // 2)
                 _, d_loss = gan_hinge_loss(labels_pos, labels_neg, self.device)
                 dis_loss = d_loss
-                print("Discriminator Loss: " + str(dis_loss.item()))
-                D_losses.append(dis_loss)
+                D_losses.append(dis_loss.item())
                 dis_loss.backward(retain_graph=True)
                 self.optimizerD.step()
                 # Generator l1 and GAN loss
                 self.gen.zero_grad()
                 l1_loss = self.l1_loss_alpha * (torch.mean(torch.abs(batch_real - x1)) +
                                                 torch.mean(torch.abs(batch_real - x2)))
-                l1_loss = l1_loss.to(self.device)
+                l1_loss = l1_loss
                 # Discriminator output for only fake images
                 batch_fake = torch.cat((batch_fake, torch.cat((mask,) * self.batch_size)), dim=1)
                 labels_neg = self.dis(batch_fake)
                 g_loss = -torch.mean(labels_neg)
                 gen_loss = g_loss.to(self.device)
-                print("Generator Loss: " + str(gen_loss.item()))
-                G_losses.append(gen_loss)
+                G_losses.append(gen_loss.item())
                 gen_loss = gen_loss + l1_loss
                 gen_loss.backward()
                 self.optimizerG.step()
+                #if iters % 100 == 0:
+                print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:4f}, d_loss = {:4f}"
+                      .format(epoch + 1, self.num_epochs, iters + 1, gen_loss.item(), dis_loss.item()))
+                iters += 2
 
     def inpaint_image(self, image, mask):
         image_incomplete = image * (torch.tensor(1.) - mask)
