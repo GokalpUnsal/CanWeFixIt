@@ -12,6 +12,7 @@ def main():
 
     # Decide which device we want to run on
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print("Device is " + str(device))
 
     # Create the dataset
     dataset = datasets.ImageFolder(root=dataroot,

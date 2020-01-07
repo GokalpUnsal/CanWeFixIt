@@ -42,6 +42,8 @@ class GAN:
         self.dis.train()
         for epoch in range(self.num_epochs):
             for i, batch_data in enumerate(dataloader, 0):
+                print("Epoch " + str(epoch + 1) + ", iteration " + str(i + 1))
+
                 # Prepare batch
                 batch_real = batch_data[0].to(self.device)
                 bbox = random_bbox()
@@ -65,6 +67,7 @@ class GAN:
                 labels_pos, labels_neg = torch.split(labels_mixed, labels_mixed.shape[0] // 2)
                 _, d_loss = gan_hinge_loss(labels_pos, labels_neg)
                 losses['d_loss'] = d_loss.to(self.device)
+                print("Discriminator Loss: " + str(losses['d_loss'].item()))
                 D_losses.append(losses['d_loss'])
                 losses['d_loss'].backward(retain_graph=True)
                 self.optimizerD.step()
@@ -78,6 +81,7 @@ class GAN:
                 labels_neg = self.dis(batch_fake)
                 g_loss = -torch.mean(labels_neg)
                 losses['g_loss'] = g_loss.to(self.device)
+                print("Generator Loss: " + str(losses['g_loss'].item()))
                 G_losses.append(losses['g_loss'])
                 gen_loss = losses['g_loss'] + losses['ae_loss']
                 gen_loss.backward()
