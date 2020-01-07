@@ -1,9 +1,9 @@
 import torch.utils.data
 from torchvision import datasets
 import torchvision.transforms as transforms
-
+import pickle
 from gan import GAN
-
+import os
 
 def main():
     dataroot = "./places2/"
@@ -23,9 +23,19 @@ def main():
 
     # Create GAN
     network = GAN(device)
-    network.train(dataset)
-    pass
+    network.train_gan(dataset)
+    model_path = "./model.pth"
 
+    if not os.path.isfile(model_path):
+        with open(model_path, 'wb') as f:
+            pickle.dump(network, f)
+            f.close()
+
+    if os.path.isfile(model_path):
+        with open(model_path, 'rb') as f:
+            loaded_model = pickle.load(f)
+            f.close()
+    pass
 
 if __name__ == '__main__':
     main()

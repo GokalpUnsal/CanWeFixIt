@@ -34,7 +34,7 @@ class GAN:
         self.optimizerD = optim.Adam(self.dis.parameters(), lr=self.lr, betas=(self.beta1, self.beta2))
         self.optimizerG = optim.Adam(self.gen.parameters(), lr=self.lr, betas=(self.beta1, self.beta2))
 
-    def train(self, dataset):
+    def train_gan(self, dataset):
         # Create the dataloader
         dataloader = tud.DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
         G_losses = []
