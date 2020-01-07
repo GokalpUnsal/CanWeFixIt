@@ -29,7 +29,7 @@ def brush_stroke_mask(dimensions=(256, 256), min_num_vertex=4, max_num_vertex=12
             :param min_line_width: int
             :param max_line_width: int
         Returns:
-            torch.tensor: output with shape [H, W, 1]
+            torch.tensor: output with shape [1, 1, H, W]
     """
     mean_angle = 2 * np.math.pi / 5
     angle_range = 2 * np.math.pi / 15
@@ -68,9 +68,8 @@ def brush_stroke_mask(dimensions=(256, 256), min_num_vertex=4, max_num_vertex=12
         cv2.flip(mask, 1)
 
     mask = np.asarray(mask, np.float32)
-    mask = np.reshape(mask, (1, H, W, 1))
+    mask = np.reshape(mask, (1, 1, H, W))
     tensor = torch.tensor(mask)
-    tensor = tensor.view([1] + [H, W] + [1])
     return tensor
 
 
@@ -82,19 +81,18 @@ def bbox2mask(bbox, max_delta_height=32, max_delta_width=32, img_shape=(256, 256
         :param max_delta_height: int
         :param img_shape: tuple, (width, height, depth)
     Returns:
-        torch.tensor: output with shape [1, H, W, 1]
+        torch.tensor: output with shape [1, 1, H, W]
     """
     height = img_shape[0]
     width = img_shape[1]
-    mask = np.zeros((1, height, width, 1), np.float32)
+    mask = np.zeros((1, 1, height, width), np.float32)
 
     h = np.random.randint(max_delta_height // 2 + 1)
     w = np.random.randint(max_delta_width // 2 + 1)
 
-    mask[:, bbox[0] + h:bbox[0] + bbox[2] - h, bbox[1] + w:bbox[1] + bbox[3] - w, :] = 1.
+    mask[:, :, bbox[0] + h:bbox[0] + bbox[3] - h, bbox[2] + w:bbox[2] + bbox[1] - w] = 1.
 
     tensor = torch.tensor(mask)
-    tensor.view([1] + [height, width] + [1])
     return tensor
 
 
@@ -106,7 +104,7 @@ def resize_mask_like(mask, x):
     Returns:
         torch.tensor: resized mask
     """
-    return torch.nn.functional.interpolate(mask, size=x.shape[1:3])
+    return torch.nn.functional.interpolate(mask, size=x.shape[2:])
 
 
 def gan_hinge_loss(pos, neg, value=1.):
