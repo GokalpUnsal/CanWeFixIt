@@ -6,12 +6,14 @@ from util_ops import resize_mask_like
 
 
 class Generator(nn.Module):
-    def __init__(self):
+    def __init__(self,device):
         super(Generator, self).__init__()
 
         ch = 48
         ch_input = 5
-
+        if device.type == "cuda":
+            self.use_cuda = True
+        else: self.use_cuda = False
         # stage_1
         self.conv1 = GatedConv2D(ch_input, ch, kernel_size=5)
         self.conv2_downsample = GatedConv2D(ch, 2 * ch, stride=2)
@@ -51,6 +53,8 @@ class Generator(nn.Module):
         self.pmconv5 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv6 = GatedConv2D(4 * ch, 4 * ch, activation=F.relu)
         # TODO: contextual attention
+        self.contextul_attention = ContextualAttention(ksize=3, stride=1, rate=2, fuse_k=3, softmax_scale=10,
+                                                       fuse=True, use_cuda=self.use_cuda)
         self.pmconv9 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv10 = GatedConv2D(4 * ch, 4 * ch)
 
@@ -123,6 +127,7 @@ class Generator(nn.Module):
         x = self.pmconv6(x)
         # TODO: contextual attention
         # x, offset_flow = contextual_attention(x, x, mask_s, 3, 1, rate=2)
+        x, offset = self.contextul_attention(x, x, mask)
         x = self.pmconv9(x)
         x = self.pmconv10(x)
         x_att = x
@@ -188,7 +193,7 @@ class GatedConv2D(nn.Module):
         if x.shape[1] == 3 or self.activation is None:
             return x
         x = self.activation(x)
-        x = x.data * gate.data
+        x = x * gate
         return x
 
 
@@ -211,7 +216,7 @@ class SpectralConv2D(nn.Module):
         pl = math.floor(p)
         self.pad = nn.ZeroPad2d((pl, ph, pl, ph))
         self.conv = nn.utils.spectral_norm(nn.Conv2d(in_channels, out_channels, kernel_size, stride))
-        nn.init.normal_(self.conv.weight.data, 0.0, 0.02)
+        nn.init.normal_ (self.conv.weight.data, 0.0, 0.02)
         nn.init.constant_(self.conv.bias.data, 0)
 
     def forward(self, x):
@@ -221,7 +226,7 @@ class SpectralConv2D(nn.Module):
 
 
 class ContextualAttention(nn.Module):
-    def __init__(self, mask=None, ksize=3, stride=1, rate=1, fuse_k=3, softmax_scale=10., fuse=True):
+    def __init__(self, mask=None, ksize=3, stride=1, rate=1, fuse_k=3, softmax_scale=10., fuse=True, use_cuda=False):
         super().__init__()
         # self.f_shape = f.shape
         # self.b_shape = b.shape
@@ -231,6 +236,7 @@ class ContextualAttention(nn.Module):
         self.fuse_k = fuse_k
         self.softmax_scale = softmax_scale
         self.fuse = fuse
+        self.use_cuda = use_cuda
 
     def forward(self, f, b, mask):
         """
@@ -314,7 +320,7 @@ class ContextualAttention(nn.Module):
         k = self.fuse_k
         scale = self.softmax_scale  # to fit the PyTorch tensor image value range
         fuse_weight = torch.eye(k).view(1, 1, k, k)  # 1*1*k*k
-        if 1 if torch.cuda.is_available() else 0:
+        if self.use_cuda:
             fuse_weight = fuse_weight.cuda()
 
         for xi, wi, raw_wi in zip(f_groups, w_groups, raw_w_groups):
@@ -382,7 +388,7 @@ class ContextualAttention(nn.Module):
         h_add = torch.arange(int_fs[2]).view([1, 1, int_fs[2], 1]).expand(int_fs[0], -1, -1, int_fs[3])
         w_add = torch.arange(int_fs[3]).view([1, 1, 1, int_fs[3]]).expand(int_fs[0], -1, int_fs[2], -1)
         ref_coordinate = torch.cat([h_add, w_add], dim=1)
-        if 1 if torch.cuda.is_available() else 0:
+        if self.use_cuda:
             ref_coordinate = ref_coordinate.cuda()
 
         offsets = offsets - ref_coordinate
@@ -390,7 +396,7 @@ class ContextualAttention(nn.Module):
 
         flow = torch.from_numpy(flow_to_image(offsets.permute(0, 2, 3, 1).cpu().data.numpy())) / 255.
         flow = flow.permute(0, 3, 1, 2)
-        if 1 if torch.cuda.is_available() else 0:
+        if self.use_cuda:
             flow = flow.cuda()
         # case2: visualize which pixels are attended
         # flow = torch.from_numpy(highlight_flow((offsets * mask.long()).cpu().data.numpy()))
