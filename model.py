@@ -14,7 +14,7 @@ class GAN:
     def __init__(self):
         self.device = params.device
         self.dtype = params.dtype
-        self.gen = Generator(self.device).to(self.device)
+        self.gen = Generator().to(self.device)
         self.dis = Discriminator().to(self.device)
 
         # Hyperparameters
@@ -81,7 +81,7 @@ class GAN:
                 g_loss = g_loss + l1_loss
                 g_loss.backward()
                 self.optimizerG.step()
-                if iters % 1000 == 0:
+                if iters % 100 == 0:
                     print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:.5f}, d_loss = {:.5f}"
                           .format(epoch + 1, self.num_epochs, iters, gen_loss.item(), dis_loss.item()))
                 iters += 1

@@ -1,6 +1,6 @@
 import params
 import torch.utils.data as tud
-from ops_data import import_data, preprocess
+from ops_data import import_data, preprocess, export_model
 from model import GAN
 
 
@@ -16,6 +16,8 @@ def main():
     # Create GAN
     network = GAN()
     network.train_gan(dataloader)
+
+    export_model(network.gen)
 
 
 if __name__ == '__main__':

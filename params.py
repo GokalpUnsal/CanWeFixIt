@@ -15,7 +15,7 @@ ch_dis = 64
 
 # training
 num_epochs = 10
-batch_size = 4
+batch_size = 16
 
 lr = 1e-4
 beta1 = 0.5
