@@ -82,3 +82,8 @@ class GAN:
                 gen_loss = losses['g_loss'] + losses['ae_loss']
                 gen_loss.backward()
                 self.optimizerG.step()
+
+    def inpaint_image(self, image, mask):
+        image_incomplete = image * (torch.tensor(1.) - mask)
+        _, prediction, _ = self.gen(image_incomplete, mask)
+        return prediction
