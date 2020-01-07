@@ -11,13 +11,14 @@ from generator import Generator
 
 class GAN:
     def __init__(self, device):
+
         self.device = device
         self.dtype = torch.float32
         self.gen = Generator().to(device)
         self.dis = Discriminator().to(device)
 
         # Hyperparameters
-        self.num_epochs = 5
+        self.num_epochs = 1
         self.batch_size = 8
 
         self.lr = 1e-4  # 0.0002
@@ -33,7 +34,7 @@ class GAN:
         self.optimizerD = optim.Adam(self.dis.parameters(), lr=self.lr, betas=(self.beta1, self.beta2))
         self.optimizerG = optim.Adam(self.gen.parameters(), lr=self.lr, betas=(self.beta1, self.beta2))
 
-    def train(self, dataset):
+    def train_gan(self, dataset):
         # Create the dataloader
         dataloader = tud.DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
         G_losses = []
@@ -42,6 +43,7 @@ class GAN:
         self.gen.train()
         self.dis.train()
         for epoch in range(self.num_epochs):
+            torch.cuda.empty_cache()
             for i, batch_data in enumerate(dataloader, 0):
                 print("Epoch " + str(epoch + 1) + ", iteration " + str(i + 1))
 
@@ -87,6 +89,7 @@ class GAN:
                 self.optimizerG.step()
 
     def inpaint_image(self, image, mask):
+
         image_incomplete = image * (torch.tensor(1.) - mask)
         _, prediction, _ = self.gen(image_incomplete, mask)
         return prediction
