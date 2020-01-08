@@ -7,7 +7,7 @@ import params
 from generator import Generator
 from layers import Discriminator
 from ops_util import bbox2mask, brush_stroke_mask, random_bbox, gan_hinge_loss, normalize_tensor
-from ops_visual import plot_losses, display_tensor_mask
+from ops_visual import plot_losses
 
 
 class GAN:

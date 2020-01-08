@@ -42,7 +42,7 @@ def display_tensor_mask(mask):
             print("Input is not a single mask!")
             return
     assert out.shape == (1, 256, 256)
-    out = torch.cat((mask, mask, mask), dim=0)
+    out = torch.cat((out, out, out), dim=0)
     out = out.permute(1, 2, 0)
     out = out.cpu()
     plt.imshow(out)

@@ -4,8 +4,10 @@ from torch import nn
 
 import params
 from layers import GatedConv2D, GatedDeconv2D, ContextualAttention
-from ops_util import resize_mask_like
+from ops_util import resize_mask_like, normalize_tensor
 import torch.nn.functional as F
+
+from ops_visual import display_tensor_image, display_tensor_mask
 
 
 class Generator(nn.Module):
@@ -77,7 +79,7 @@ class Generator(nn.Module):
         # prepare input channels
         xin = x
         ones_x = torch.ones_like(x)[:, 0:1, :, :]
-        x = torch.cat([x, ones_x, ones_x* mask], dim=1)
+        x = torch.cat([x, ones_x, ones_x * mask], dim=1)
 
         # stage_1
         x = self.conv1(x)
@@ -156,13 +158,12 @@ class Generator(nn.Module):
         with torch.no_grad():
             image = image.permute(2, 0, 1)  # (3, 256, 256)
             mask = mask.permute(2, 0, 1)    # (1, 256, 256)
-            image = image / 127.5 - 1       # Normalize image tensor between -1 and 1
             image = image.unsqueeze(0).to(params.device)    # (1, 3, 256, 256)
-            mask = mask.unsqueeze(0).to(params.device)      # (1, 3, 256, 256)
+            mask = mask.unsqueeze(0).to(params.device)      # (1, 1, 256, 256)
+            image = normalize_tensor(image, (0, 255), (-1, 1))
+            mask = normalize_tensor(mask, (0, 255), (0, 1))
             image_incomplete = image * (torch.tensor(1.) - mask)
             _, prediction, _ = self(image_incomplete, mask)
-            image_complete = prediction #* mask + image_incomplete * (1-mask)
-            print(torch.min(image_complete))
-            print(torch.max(mask))
-            print(torch.max(prediction))
+            image_complete = prediction * mask + image_incomplete * (1 - mask)
+            image_complete = normalize_tensor(image_complete, (-1, 1), (0, 1))
             return image_complete

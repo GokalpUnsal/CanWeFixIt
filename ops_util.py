@@ -132,7 +132,7 @@ def normalize_tensor(t, input_range=(0, 1), output_range=(-1, 1)):
     min2 = output_range[0]
     diff2 = output_range[1] - output_range[0]
     assert diff1 != 0
-    tn = torch.tensor((t - min1) * (diff2 / diff1) + min2)
+    tn = (t - min1) * (diff2 / diff1) + min2
     return tn
 
 

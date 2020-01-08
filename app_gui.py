@@ -3,11 +3,10 @@ import numpy as np
 import wx
 from wx.core import wx
 import torch
-import matplotlib.pyplot as plt
 import params
 from ops_data import import_model
 from ops_util import brush_stroke_mask
-from ops_visual import display_tensor_image, display_tensor_mask
+from ops_visual import display_tensor_image
 
 
 class CanWeFixItGUI(wx.Frame):
