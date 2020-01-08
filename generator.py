@@ -149,16 +149,14 @@ class Generator(nn.Module):
         return x_stage_1, x_stage_2, offset_flow
 
     def inpaint_image(self, image, mask):
+        # image: tensor with shape (256, 256, 3)
+        # mask: tensor with shape (256, 256, 1)
         with torch.no_grad():
-            image = image.permute(2, 0, 1)
-            mask = mask.permute(2, 0, 1)
-            tr = transforms.Compose([
-                transforms.ToPILImage(),
-                transforms.ToTensor(),
-            ])
-            image = tr(image)
-            image = image.unsqueeze(0).to(params.device)
-            mask = mask.unsqueeze(0).to(params.device)
+            image = image.permute(2, 0, 1)  # (3, 256, 256)
+            mask = mask.permute(2, 0, 1)    # (1, 256, 256)
+            image = image / 127.5 - 1       # Normalize image tensor between -1 and 1
+            image = image.unsqueeze(0).to(params.device)    # (1, 3, 256, 256)
+            mask = mask.unsqueeze(0).to(params.device)      # (1, 3, 256, 256)
             image_incomplete = image * (torch.tensor(1.) - mask)
             _, prediction, _ = self(image_incomplete, mask)
             return prediction

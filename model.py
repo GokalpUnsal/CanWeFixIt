@@ -7,7 +7,7 @@ import params
 from generator import Generator
 from layers import Discriminator
 from ops_util import bbox2mask, brush_stroke_mask, random_bbox, gan_hinge_loss
-from ops_visual import plot_losses
+from ops_visual import plot_losses, display_tensor_mask
 
 
 class GAN:
@@ -25,10 +25,6 @@ class GAN:
         self.beta2 = params.beta2
         self.l1_loss_alpha = params.l1_loss_alpha
 
-        # Establish convention for real and fake labels during training
-        self.real_label = 1
-        self.fake_label = -1
-
         # Setup Adam optimizers for both G and D
         self.optimizerD = optim.Adam(self.dis.parameters(), lr=self.lr, betas=(self.beta1, self.beta2))
         self.optimizerG = optim.Adam(self.gen.parameters(), lr=self.lr, betas=(self.beta1, self.beta2))
@@ -43,6 +39,7 @@ class GAN:
 
         bbox = random_bbox()
         mask = bbox2mask(bbox).to(self.device)
+        display_tensor_mask(mask)
 
         for epoch in range(self.num_epochs):
             for i, batch_data in enumerate(dataloader, 0):
@@ -76,7 +73,7 @@ class GAN:
                                                 torch.mean(torch.abs(batch_real - x2)))
                 L_losses.append(l1_loss.item())
                 # Discriminator output for only fake images
-                batch_fake = torch.cat((batch_fake, torch.cat((mask,) * self.batch_size)), dim=1)
+                batch_fake = torch.cat((batch_fake, torch.cat((mask,) * batch_fake.shape[0])), dim=1)
                 labels_neg = self.dis(batch_fake)
                 g_loss = -torch.mean(labels_neg)
                 gen_loss = g_loss
