@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import torch
 
+import params
+
 
 def random_bbox(width=128, height=128, vertical_margin=0, horizontal_margin=0, img_shape=(256, 256, 3)):
     """Generate a random tlhw.
@@ -107,14 +109,14 @@ def resize_mask_like(mask, x):
     return torch.nn.functional.interpolate(mask, size=x.shape[2:])
 
 
-def gan_hinge_loss(pos, neg, device):
+def gan_hinge_loss(pos, neg):
     """
     gan with hinge loss:
     https://github.com/JiahuiYu/neuralgym/blob/master/neuralgym/ops/gan_ops.py
     """
-    hinge_pos = torch.mean(torch.nn.functional.relu(1 - pos)).to(device)
-    hinge_neg = torch.mean(torch.nn.functional.relu(1 + neg)).to(device)
-    d_loss = (torch.tensor(.5, device=device) * hinge_pos + torch.tensor(.5, device=device) * hinge_neg)
+    hinge_pos = torch.mean(torch.nn.functional.relu(1 - pos)).to(params.device)
+    hinge_neg = torch.mean(torch.nn.functional.relu(1 + neg)).to(params.device)
+    d_loss = (torch.tensor(.5, device=params.device) * hinge_pos + torch.tensor(.5, device=params.device) * hinge_neg)
     g_loss = (-torch.mean(neg))
     return g_loss, d_loss
 
