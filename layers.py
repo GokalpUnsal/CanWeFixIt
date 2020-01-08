@@ -37,10 +37,6 @@ class GatedConv2D(nn.Module):
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, dilation=dilation)
         self.conv_mask = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, dilation=dilation)
         self.activation = activation
-        # nn.init.normal_(self.conv.weight.data, 0.0, 0.02)
-        # nn.init.constant_(self.conv.bias.data, 0)
-        # nn.init.normal_(self.conv_mask.weight.data, 0.0, 0.02)
-        # nn.init.constant_(self.conv_mask.bias.data, 0)
 
     def forward(self, x):
         x = self.pad(x)
@@ -148,7 +144,7 @@ class ContextualAttention(nn.Module):
             if self.use_cuda:
                 mask = mask.cuda()
         else:
-            mask = fun.interpolate(mask, scale_factor=1. / (4 * self.rate), mode='nearest')
+            mask = fun.interpolate(mask, scale_factor=1. / self.rate, mode='nearest')
         int_ms = list(mask.size())
         # m shape: [N, C*k*k, L]
         m = extract_image_patches(mask, ksizes=[self.ksize, self.ksize],

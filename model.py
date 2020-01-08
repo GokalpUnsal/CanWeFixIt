@@ -7,7 +7,7 @@ import params
 from generator import Generator
 from layers import Discriminator
 from ops_util import bbox2mask, brush_stroke_mask, random_bbox, gan_hinge_loss, normalize_tensor
-from ops_visual import plot_losses
+from ops_visual import plot_losses, display_tensor_image
 
 
 class GAN:
@@ -44,6 +44,7 @@ class GAN:
         for epoch in range(self.num_epochs):
             for i, batch_data in enumerate(dataloader, 0):
                 # Prepare batch
+                batch_data = batch_data[:, 0:2, :, :]
                 batch_real = normalize_tensor(batch_data[0]).to(self.device)
                 bbox = random_bbox()
                 regular_mask = bbox2mask(bbox)
@@ -85,6 +86,8 @@ class GAN:
                 if iters % 10 == 0:
                     print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:.5f}, d_loss = {:.5f}, l1_loss = {:.5f}"
                           .format(epoch + 1, self.num_epochs, iters, gen_loss.item(), dis_loss.item(), l1_loss.item()))
+                    # display_tensor_image(x1)
+                    # display_tensor_image(x2)
                 iters += 1
 
         plot_losses(G_losses, D_losses, L_losses)

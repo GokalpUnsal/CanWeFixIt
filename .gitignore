@@ -127,6 +127,7 @@ dmypy.json
 
 .idea/
 places2/
+imagenet/
 model.pth
 gen_model.pth
 dis_model.pth

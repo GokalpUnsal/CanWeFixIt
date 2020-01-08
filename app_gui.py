@@ -10,8 +10,8 @@ from ops_visual import display_tensor_image
 
 
 class CanWeFixItGUI(wx.Frame):
-    MAX_WIDTH = 256
-    MAX_HEIGHT = 256
+    MAX_WIDTH = 64
+    MAX_HEIGHT = 64
 
     def __init__(self, parent, id, title):
         wx.Frame.__init__(self,

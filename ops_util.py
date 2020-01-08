@@ -5,7 +5,9 @@ import torch
 import params
 
 
-def random_bbox(width=128, height=128, vertical_margin=0, horizontal_margin=0, img_shape=(256, 256, 3)):
+def random_bbox(width=params.image_size // 2, height=params.image_size // 2,
+                vertical_margin=0, horizontal_margin=0,
+                img_shape=(params.image_size, params.image_size, 3)):
     """Generate a random tlhw.
     Returns:
         tuple: (top, left, height, width)
@@ -22,7 +24,7 @@ def random_bbox(width=128, height=128, vertical_margin=0, horizontal_margin=0, i
     return t, l, h, w
 
 
-def brush_stroke_mask(dimensions=(256, 256), min_num_vertex=4, max_num_vertex=12, min_line_width=12, max_line_width=40):
+def brush_stroke_mask(dimensions=(params.image_size, params.image_size), min_num_vertex=4, max_num_vertex=12, min_line_width=12, max_line_width=40):
     """ Generate random mask
         Args:
             :param dimensions: tuple, (width, height)
@@ -75,7 +77,8 @@ def brush_stroke_mask(dimensions=(256, 256), min_num_vertex=4, max_num_vertex=12
     return tensor
 
 
-def bbox2mask(bbox, max_delta_height=32, max_delta_width=32, img_shape=(256, 256, 3)):
+def bbox2mask(bbox, max_delta_height=params.image_size // 8, max_delta_width=params.image_size // 8,
+              img_shape=(params.image_size, params.image_size, 3)):
     """Generate mask tensor from bbox.
     Args:
         :param bbox: tuple, (top, left, height, width)

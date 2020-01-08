@@ -27,6 +27,7 @@ def display_tensor_image(img):
     assert out.shape == (3, 256, 256)
     out = out.permute(1, 2, 0)
     out = out.cpu()
+    out = out.detach().numpy()
     plt.imshow(out)
     plt.show()
 
@@ -45,5 +46,6 @@ def display_tensor_mask(mask):
     out = torch.cat((out, out, out), dim=0)
     out = out.permute(1, 2, 0)
     out = out.cpu()
+    out = out.detach().numpy()
     plt.imshow(out)
     plt.show()
