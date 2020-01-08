@@ -19,7 +19,7 @@ pretrained = True
 num_epochs = 1
 batch_size = 16
 
-lr = 2e-4
+lr = 1e-4
 beta1 = 0.5
 beta2 = 0.999
 l1_loss_alpha = 1

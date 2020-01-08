@@ -38,10 +38,6 @@ class GatedConv2D(nn.Module):
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, dilation=dilation)
         self.conv_mask = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, dilation=dilation)
         self.activation = activation
-        nn.init.normal_(self.conv.weight.data, 0.0, 0.02)
-        nn.init.constant_(self.conv.bias.data, 0)
-        nn.init.normal_(self.conv_mask.weight.data, 0.0, 0.02)
-        nn.init.constant_(self.conv_mask.bias.data, 0)
 
     def forward(self, x):
         x = self.pad(x)
@@ -51,7 +47,7 @@ class GatedConv2D(nn.Module):
         if x.shape[1] == 3 or self.activation is None:
             return x
         x = self.activation(x)
-        x = x.data * gate.data
+        x = x * gate
         return x
 
 
