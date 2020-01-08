@@ -12,3 +12,9 @@ def plot_losses(g_losses, d_losses, l_losses):
     plt.legend()
     plt.show()
 
+
+def display_tensor_image(x):
+    x = x.permute(0, 2, 3, 1).squeeze(0)
+    x = x.cpu()
+    plt.imshow(x)
+    plt.show()
