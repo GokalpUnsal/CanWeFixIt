@@ -17,7 +17,7 @@ pretrained = False
 
 # training
 num_epochs = 10
-batch_size = 32
+batch_size = 16
 
 lr = 1e-4
 beta1 = 0.5

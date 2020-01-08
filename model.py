@@ -44,8 +44,7 @@ class GAN:
         for epoch in range(self.num_epochs):
             for i, batch_data in enumerate(dataloader, 0):
                 # Prepare batch
-                batch_data = batch_data[:, 0:2, :, :]
-                batch_real = normalize_tensor(batch_data[0]).to(self.device)
+                batch_real = normalize_tensor(batch_data[0][:, 0:3, :, :]).to(self.device)
                 bbox = random_bbox()
                 regular_mask = bbox2mask(bbox)
                 irregular_mask = brush_stroke_mask()
