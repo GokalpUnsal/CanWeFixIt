@@ -5,6 +5,7 @@ from torch import nn
 import params
 from layers import GatedConv2D, GatedDeconv2D, ContextualAttention
 from ops_util import resize_mask_like
+import torch.nn.functional as F
 
 
 class Generator(nn.Module):
@@ -76,7 +77,7 @@ class Generator(nn.Module):
         # prepare input channels
         xin = x
         ones_x = torch.ones_like(x)[:, 0:1, :, :]
-        x = torch.cat([x, ones_x, ones_x * mask], dim=1)
+        x = torch.cat([x, ones_x, ones_x* mask], dim=1)
 
         # stage_1
         x = self.conv1(x)
@@ -102,12 +103,12 @@ class Generator(nn.Module):
 
         # prepare coarse result for stage 2
         # put generated patch into input image without patch
-        x = x * mask + xin[:, 0:3, :, :] * (1 - mask)
-        x.reshape(xin[:, 0:3, :, :].shape)
-        x_branch = x
+        x_inpaint = x_stage_1 * mask + xin[:, 0:3, :, :] * (1 - mask)
+        x_inpaint.reshape(xin[:, 0:3, :, :].shape)
 
         # convolution branch
-        x = self.xconv1(x_branch)
+        #xnow = torch.cat([x_inpaint, ones_x, ones_x*mask], dim=1)
+        x = self.xconv1(x_inpaint)
         x = self.xconv2_downsample(x)
         x = self.xconv3(x)
         x = self.xconv4_downsample(x)
@@ -120,7 +121,7 @@ class Generator(nn.Module):
         x_conv = x
 
         # attention branch
-        x = self.pmconv1(x_branch)
+        x = self.pmconv1(x_inpaint)
         x = self.pmconv2_downsample(x)
         x = self.pmconv3(x)
         x = self.pmconv4_downsample(x)
@@ -143,7 +144,9 @@ class Generator(nn.Module):
         x = self.allconv17(x)
         x = torch.tanh(x)
         x_stage_2 = x
-
+        #TODO :1 THE MAIN PROBLEM IS 1-MASK
+        #x_inpaint = x_stage_1 * mask + xin[:, 0:3, :, :] * (1 - mask)
+        # x_stage_2 = xin[:, 0:3, :, :] * (mask)
         # return stage 1, stage 2 and offset flow results
         return x_stage_1, x_stage_2, offset_flow
 
@@ -158,4 +161,8 @@ class Generator(nn.Module):
             mask = mask.unsqueeze(0).to(params.device)      # (1, 3, 256, 256)
             image_incomplete = image * (torch.tensor(1.) - mask)
             _, prediction, _ = self(image_incomplete, mask)
-            return prediction
+            image_complete = prediction #* mask + image_incomplete * (1-mask)
+            print(torch.min(image_complete))
+            print(torch.max(mask))
+            print(torch.max(prediction))
+            return image_complete

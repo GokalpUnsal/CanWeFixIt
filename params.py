@@ -4,7 +4,7 @@ import torch
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # data
-data_root = "./places2/val/"
+data_root = "./places2/"
 dtype = torch.float32
 image_size = 256
 
