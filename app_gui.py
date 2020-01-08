@@ -103,7 +103,7 @@ class CanWeFixItGUI(wx.Frame):
                 if random_mask[i][j] == 1:
                     random_mask[i][j] = 255
 
-        cv2.imwrite("random_mask.png", random_mask)
+        cv2.imshow("Random Mask", random_mask)
 
     def on_image_left_down(self, e):
         x, y = e.GetPosition()
