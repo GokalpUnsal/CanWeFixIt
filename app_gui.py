@@ -19,7 +19,7 @@ class CanWeFixItGUI(wx.Frame):
                           id,
                           title,
                           wx.DefaultPosition,
-                          wx.Size(800, 800))
+                          wx.Size(512, 350))
 
         self.dirname = ''
         self.filename = ''
@@ -78,7 +78,7 @@ class CanWeFixItGUI(wx.Frame):
         self.mask_img = np.zeros((self.img_height, self.img_width, 1), np.uint8)
 
         wx_img = wx.Bitmap.FromBuffer(self.img_width, self.img_height, self.painted_img)
-        self.wx_bitmap = wx.StaticBitmap(self, -1, wx_img, (106, 25))
+        self.wx_bitmap = wx.StaticBitmap(self, -1, wx_img, (200, 10))
         self.wx_bitmap.Bind(wx.EVT_LEFT_DOWN, self.on_image_left_down)
         self.wx_bitmap.Bind(wx.EVT_LEFT_UP, self.on_image_left_up)
         self.wx_bitmap.Bind(wx.EVT_MOTION, self.on_image_motion)
