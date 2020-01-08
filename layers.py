@@ -2,7 +2,6 @@ import math
 import torch.nn.functional as fun
 from torch import nn
 
-import params
 from ops_util import *
 
 
@@ -70,8 +69,6 @@ class SpectralConv2D(nn.Module):
         pl = math.floor(p)
         self.pad = nn.ZeroPad2d((pl, ph, pl, ph))
         self.conv = nn.utils.spectral_norm(nn.Conv2d(in_channels, out_channels, kernel_size, stride))
-        nn.init.normal_(self.conv.weight.data, 0.0, 0.02)
-        nn.init.constant_(self.conv.bias.data, 0)
 
     def forward(self, x):
         x = self.pad(x)

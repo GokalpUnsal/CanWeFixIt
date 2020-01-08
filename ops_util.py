@@ -121,12 +121,18 @@ def gan_hinge_loss(pos, neg):
     return g_loss, d_loss
 
 
-def normalize_tensor(t, ends=(-1, 1)):
-    # t: tensor to be normalized between 0 and 1
-    # ends: tuple of min and max values of t's representation
-    # for example, if t is an image tensor with 8-bit integer values, ends=(0, 255)
+def normalize_tensor(t, input_range=(0, 1), output_range=(-1, 1)):
+    # t: tensor to be normalized
+    # input_range: tuple of min and max values of t's current representation
+    #              for example, if t is an image tensor with 8-bit integer values, input_range=(0, 255)
+    # output_range: tuple of min and max values in the new representation
     # returns: normalized tensor
-    tn = torch.tensor((t - ends[0]) / (ends[1] - ends[0]))
+    min1 = input_range[0]
+    diff1 = input_range[1] - input_range[0]
+    min2 = output_range[0]
+    diff2 = output_range[1] - output_range[0]
+    assert diff1 != 0
+    tn = torch.tensor((t - min1) * (diff2 / diff1) + min2)
     return tn
 
 
