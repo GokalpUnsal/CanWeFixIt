@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import params
 from ops_data import import_model
 from ops_util import brush_stroke_mask
-from ops_visual import display_tensor_image
+from ops_visual import display_tensor_image, display_tensor_mask
 
 
 class CanWeFixItGUI(wx.Frame):
@@ -88,8 +88,8 @@ class CanWeFixItGUI(wx.Frame):
 
     def onInpaint(self, e):
         gen = import_model(params.gen_model_path, "G")
-        org = torch.from_numpy(self.original_img).type(params.dtype).unsqueeze(0).permute(0, 3, 1, 2).to(params.device)
-        msk = torch.from_numpy(self.mask_img).type(params.dtype).unsqueeze(0).permute(0, 3, 1, 2).to(params.device)
+        org = torch.from_numpy(self.original_img).type(params.dtype)
+        msk = torch.from_numpy(self.mask_img).type(params.dtype)
         img = gen.inpaint_image(org, msk)
         display_tensor_image(img)
 
@@ -103,7 +103,7 @@ class CanWeFixItGUI(wx.Frame):
                 if random_mask[i][j] == 1:
                     random_mask[i][j] = 255
 
-        cv2.imwrite("random_mask.png", random_mask)
+        cv2.imshow("Random Mask", random_mask)
 
     def on_image_left_down(self, e):
         x, y = e.GetPosition()
