@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import params
 from ops_data import import_model
 from ops_util import brush_stroke_mask
+from ops_visual import display_tensor_image
 
 
 class CanWeFixItGUI(wx.Frame):
@@ -90,20 +91,7 @@ class CanWeFixItGUI(wx.Frame):
         org = torch.from_numpy(self.original_img).type(params.dtype).unsqueeze(0).permute(0, 3, 1, 2).to(params.device)
         msk = torch.from_numpy(self.mask_img).type(params.dtype).unsqueeze(0).permute(0, 3, 1, 2).to(params.device)
         img = gen.inpaint_image(org, msk)
-
-        img = img.permute(0, 2, 3, 1).squeeze(0)
-        img = img.cpu()
-        # img = img.detach().numpy()
-        mean = torch.mean(img)
-        std = torch.std(img)
-        # torch.distributions.transforms.F.normalize()
-        img = (img - mean) / std
-        img = (img + 1) / 2
-        img = img.data
-        print(img)
-        plt.imshow(img)
-        plt.show()
-        # cv2.imshow("image",img)
+        display_tensor_image(img)
 
     def onExportMask(self, e):
         cv2.imwrite("mask_%s" % self.filename, self.mask_img)
