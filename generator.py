@@ -146,7 +146,6 @@ class Generator(nn.Module):
         x = self.allconv17(x)
         x = torch.tanh(x)
         x_stage_2 = x
-        #TODO :1 THE MAIN PROBLEM IS 1-MASK
         #x_inpaint = x_stage_1 * mask + xin[:, 0:3, :, :] * (1 - mask)
         # x_stage_2 = xin[:, 0:3, :, :] * (mask)
         # return stage 1, stage 2 and offset flow results
