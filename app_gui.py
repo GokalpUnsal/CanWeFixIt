@@ -91,6 +91,7 @@ class CanWeFixItGUI(wx.Frame):
         org = torch.from_numpy(self.original_img).type(params.dtype)
         msk = torch.from_numpy(self.mask_img).type(params.dtype)
         img = gen.inpaint_image(org, msk)
+
         display_tensor_image(img)
 
     def onExportMask(self, e):

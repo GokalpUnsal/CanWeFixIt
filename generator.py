@@ -104,7 +104,7 @@ class Generator(nn.Module):
         # prepare coarse result for stage 2
         # put generated patch into input image without patch
         x_inpaint = x_stage_1 * mask + xin[:, 0:3, :, :] * (1 - mask)
-        x.reshape(xin[:, 0:3, :, :].shape)
+        x_inpaint.reshape(xin[:, 0:3, :, :].shape)
 
         # convolution branch
         #xnow = torch.cat([x_inpaint, ones_x, ones_x*mask], dim=1)
@@ -145,7 +145,8 @@ class Generator(nn.Module):
         x = torch.tanh(x)
         x_stage_2 = x
         #TODO :1 THE MAIN PROBLEM IS 1-MASK
-        x_stage_2 = xin[:, 0:3, :, :] * (mask)
+        #x_inpaint = x_stage_1 * mask + xin[:, 0:3, :, :] * (1 - mask)
+        # x_stage_2 = xin[:, 0:3, :, :] * (mask)
         # return stage 1, stage 2 and offset flow results
         return x_stage_1, x_stage_2, offset_flow
 
@@ -160,4 +161,8 @@ class Generator(nn.Module):
             mask = mask.unsqueeze(0).to(params.device)      # (1, 3, 256, 256)
             image_incomplete = image * (torch.tensor(1.) - mask)
             _, prediction, _ = self(image_incomplete, mask)
-            return prediction
+            image_complete = prediction #* mask + image_incomplete * (1-mask)
+            print(torch.min(image_complete))
+            print(torch.max(mask))
+            print(torch.max(prediction))
+            return image_complete

@@ -38,6 +38,10 @@ class GatedConv2D(nn.Module):
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, dilation=dilation)
         self.conv_mask = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, dilation=dilation)
         self.activation = activation
+        # nn.init.normal_(self.conv.weight.data, 0.0, 0.02)
+        # nn.init.constant_(self.conv.bias.data, 0)
+        # nn.init.normal_(self.conv_mask.weight.data, 0.0, 0.02)
+        # nn.init.constant_(self.conv_mask.bias.data, 0)
 
     def forward(self, x):
         x = self.pad(x)
@@ -70,8 +74,8 @@ class SpectralConv2D(nn.Module):
         pl = math.floor(p)
         self.pad = nn.ZeroPad2d((pl, ph, pl, ph))
         self.conv = nn.utils.spectral_norm(nn.Conv2d(in_channels, out_channels, kernel_size, stride))
-        nn.init.normal_(self.conv.weight.data, 0.0, 0.02)
-        nn.init.constant_(self.conv.bias.data, 0)
+        # nn.init.normal_(self.conv.weight.data, 0.0, 0.02)
+        # nn.init.constant_(self.conv.bias.data, 0)
 
     def forward(self, x):
         x = self.pad(x)
