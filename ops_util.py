@@ -121,6 +121,15 @@ def gan_hinge_loss(pos, neg):
     return g_loss, d_loss
 
 
+def normalize_tensor(t, ends=(-1, 1)):
+    # t: tensor to be normalized between 0 and 1
+    # ends: tuple of min and max values of t's representation
+    # for example, if t is an image tensor with 8-bit integer values, ends=(0, 255)
+    # returns: normalized tensor
+    tn = torch.tensor((t - ends[0]) / (ends[1] - ends[0]))
+    return tn
+
+
 def extract_image_patches(images, ksizes, strides, rates, padding='same'):
     batch_s, channel, height, width = images.size()
     if padding == 'same':
