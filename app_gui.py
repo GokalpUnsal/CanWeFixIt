@@ -7,9 +7,6 @@ import matplotlib.pyplot as plt
 import params
 from ops_data import import_model
 from ops_util import brush_stroke_mask
-from generator import Generator
-from torchvision import transforms
-
 
 
 class CanWeFixItGUI(wx.Frame):
@@ -89,7 +86,7 @@ class CanWeFixItGUI(wx.Frame):
         dlg.Destroy()
 
     def onInpaint(self, e):
-        gen = import_model(params.model_path)
+        gen = import_model(params.gen_model_path, "G")
         org = torch.from_numpy(self.original_img).type(params.dtype).unsqueeze(0).permute(0, 3, 1, 2).to(params.device)
         msk = torch.from_numpy(self.mask_img).type(params.dtype).unsqueeze(0).permute(0, 3, 1, 2).to(params.device)
         img = gen.inpaint_image(org, msk)

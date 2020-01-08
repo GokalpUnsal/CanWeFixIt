@@ -128,4 +128,6 @@ dmypy.json
 .idea/
 places2/
 model.pth
+gen_model.pth
+dis_model.pth
 random_mask.png

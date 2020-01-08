@@ -74,7 +74,7 @@ class SpectralConv2D(nn.Module):
         pl = math.floor(p)
         self.pad = nn.ZeroPad2d((pl, ph, pl, ph))
         self.conv = nn.utils.spectral_norm(nn.Conv2d(in_channels, out_channels, kernel_size, stride))
-        nn.init.normal_ (self.conv.weight.data, 0.0, 0.02)
+        nn.init.normal_(self.conv.weight.data, 0.0, 0.02)
         nn.init.constant_(self.conv.bias.data, 0)
 
     def forward(self, x):
@@ -84,10 +84,9 @@ class SpectralConv2D(nn.Module):
 
 
 class ContextualAttention(nn.Module):
-    def __init__(self, mask=None, ksize=3, stride=1, rate=1, fuse_k=3, softmax_scale=10., fuse=True, use_cuda=False):
-        super().__init__()
-        # self.f_shape = f.shape
-        # self.b_shape = b.shape
+    def __init__(self, ksize=3, stride=1, rate=1, fuse_k=3, softmax_scale=10,
+                 fuse=False, use_cuda=False, device_ids=None):
+        super(ContextualAttention, self).__init__()
         self.ksize = ksize
         self.stride = stride
         self.rate = rate
@@ -95,15 +94,9 @@ class ContextualAttention(nn.Module):
         self.softmax_scale = softmax_scale
         self.fuse = fuse
         self.use_cuda = use_cuda
+        self.device_ids = device_ids
 
-    def forward(self, f, b, mask):
-        """
-
-        :param f: foreground
-        :param b: background
-        :param mask: input mask
-        :return: torch.tensor
-        """
+    def forward(self, f, b, mask=None):
         """ Contextual attention layer implementation.
         Contextual attention is first introduced in publication:
             Generative Image Inpainting with Contextual Attention, Yu et al.
@@ -191,7 +184,7 @@ class ContextualAttention(nn.Module):
             '''
             # conv for compare
             escape_NaN = torch.FloatTensor([1e-4])
-            if 1 if torch.cuda.is_available() else 0:
+            if self.use_cuda:
                 escape_NaN = escape_NaN.cuda()
             wi = wi[0]  # [L, C, k, k]
             max_wi = torch.max(torch.sqrt(reduce_sum(torch.pow(wi, 2),

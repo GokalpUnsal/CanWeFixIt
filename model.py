@@ -48,10 +48,10 @@ class GAN:
             for i, batch_data in enumerate(dataloader, 0):
                 # Prepare batch
                 batch_real = batch_data[0].to(self.device)
-                #bbox = random_bbox()
-                #regular_mask = bbox2mask(bbox)
-                #irregular_mask = brush_stroke_mask()
-                #mask = random.choice([regular_mask, irregular_mask]).to(self.device)
+                # bbox = random_bbox()
+                # regular_mask = bbox2mask(bbox)
+                # irregular_mask = brush_stroke_mask()
+                # mask = random.choice([regular_mask, irregular_mask]).to(self.device)
                 batch_incomplete = (batch_real * (torch.tensor(1., device=self.device) - mask)).to(self.device)
                 xin = batch_incomplete
                 # Discriminator forward pass and GAN loss
@@ -86,8 +86,8 @@ class GAN:
                 g_loss.backward()
                 self.optimizerG.step()
                 if iters % 10 == 0:
-                    print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:.5f}, d_loss = {:.5f}"
-                          .format(epoch + 1, self.num_epochs, iters, gen_loss.item(), dis_loss.item()))
+                    print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:.5f}, d_loss = {:.5f}, l1_loss = {:.5f}"
+                          .format(epoch + 1, self.num_epochs, iters, gen_loss.item(), dis_loss.item(), l1_loss.item()))
                 iters += 1
 
-        plot_losses(G_losses, D_losses)
+        plot_losses(G_losses, D_losses, L_losses)

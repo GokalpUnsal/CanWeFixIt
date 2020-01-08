@@ -54,9 +54,8 @@ class Generator(nn.Module):
         self.pmconv4_downsample = GatedConv2D(2 * ch, 4 * ch, stride=2)
         self.pmconv5 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv6 = GatedConv2D(4 * ch, 4 * ch, activation=fun.relu)
-        # TODO: contextual attention
-        # self.contextul_attention = ContextualAttention(ksize=3, stride=1, rate=2, fuse_k=3, softmax_scale=10,
-        #                                                fuse=True, use_cuda=self.use_cuda)
+        self.contextual_attention = ContextualAttention(ksize=3, stride=1, rate=2, fuse_k=3, softmax_scale=10,
+                                                       fuse=True, use_cuda=self.use_cuda)
         self.pmconv9 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv10 = GatedConv2D(4 * ch, 4 * ch)
 
@@ -128,7 +127,7 @@ class Generator(nn.Module):
         x = self.pmconv5(x)
         x = self.pmconv6(x)
         # TODO: contextual attention
-        # x, flow = self.contextul_attention(x, x, mask)
+        x, flow = self.contextual_attention(x, x, mask)
         # x, offset_flow = contextual_attention(x, x, mask_s, 3, 1, rate=2)
         x = self.pmconv9(x)
         x = self.pmconv10(x)
