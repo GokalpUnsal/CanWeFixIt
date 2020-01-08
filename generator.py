@@ -1,7 +1,6 @@
 import torch
 import torch.nn.functional as fun
 from torch import nn
-from torchvision import transforms
 
 import params
 from layers import GatedConv2D, GatedDeconv2D, ContextualAttention
@@ -151,8 +150,8 @@ class Generator(nn.Module):
         return x_stage_1, x_stage_2, offset_flow
 
     def inpaint_image(self, image, mask):
-        # image: tensor with shape (256, 256, 3)
-        # mask: tensor with shape (256, 256, 1)
+        # image: tensor with shape (256, 256, 3), values (0-255)
+        # mask: tensor with shape (256, 256, 1), values (0-1)
         with torch.no_grad():
             image = image.permute(2, 0, 1)  # (3, 256, 256)
             mask = mask.permute(2, 0, 1)    # (1, 256, 256)

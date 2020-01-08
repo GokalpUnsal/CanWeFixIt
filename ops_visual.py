@@ -15,20 +15,35 @@ def plot_losses(g_losses, d_losses, l_losses):
 
 
 def display_tensor_image(img):
-    # x: Tensor with values from -1 to 1. Shape = (1, 3, 256, 256)
+    # img: Tensor with shape (1, 3, 256, 256) or (3, 256, 256)
     # Output image shape = (256, 256, 3)
-    out = img / 2 + 0.5     # Normalize between 0 and 1
-    out = out.permute(0, 2, 3, 1).squeeze(0)
+    out = img
+    if len(out.shape) == 4:
+        if out.shape[0] == 1:
+            out = out.squeeze(0)
+        else:
+            print("Input is not a single image!")
+            return
+    assert out.shape == (3, 256, 256)
+    out = out.permute(1, 2, 0)
     out = out.cpu()
     plt.imshow(out)
     plt.show()
 
 
 def display_tensor_mask(mask):
-    # mask: Tensor with value from 0 to 1. Shape = (1, 1, 256, 256)
+    # mask: Tensor with shape (1, 1, 256, 256) or (1, 256, 256)
     # Output image shape = (256, 256, 3)
-    out = torch.cat((mask, mask, mask), dim=1)
-    out = out.permute(0, 2, 3, 1).squeeze(0)
+    out = mask
+    if len(out.shape) == 4:
+        if out.shape[0] == 1:
+            out = out.squeeze(0)
+        else:
+            print("Input is not a single mask!")
+            return
+    assert out.shape == (1, 256, 256)
+    out = torch.cat((mask, mask, mask), dim=0)
+    out = out.permute(1, 2, 0)
     out = out.cpu()
     plt.imshow(out)
     plt.show()
