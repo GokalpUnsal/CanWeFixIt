@@ -82,7 +82,7 @@ class GAN:
                 g_loss = g_loss + l1_loss
                 g_loss.backward()
                 self.optimizerG.step()
-                if iters % 10 == 0:
+                if iters % params.iter_print == 0:
                     print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:.5f}, d_loss = {:.5f}, l1_loss = {:.5f}"
                           .format(epoch + 1, self.num_epochs, iters, gen_loss.item(), dis_loss.item(), l1_loss.item()))
                     # display_tensor_image(x1)
