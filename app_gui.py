@@ -90,7 +90,6 @@ class CanWeFixItGUI(wx.Frame):
         org = torch.from_numpy(self.original_img).type(params.dtype).unsqueeze(0).permute(0, 3, 1, 2).to(params.device)
         msk = torch.from_numpy(self.mask_img).type(params.dtype).unsqueeze(0).permute(0, 3, 1, 2).to(params.device)
         img = gen.inpaint_image(org, msk)
-
         img = img.permute(0, 2, 3, 1).squeeze(0)
         img = img.cpu()
         # img = img.detach().numpy()
@@ -98,7 +97,7 @@ class CanWeFixItGUI(wx.Frame):
         std = torch.std(img)
         # torch.distributions.transforms.F.normalize()
         img = (img - mean) / std
-        img = (img + 1) / 2
+        img = (img + 1.5) / 2
         img = img.data
         print(img)
         plt.imshow(img)
