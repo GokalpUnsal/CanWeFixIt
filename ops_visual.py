@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import torch
 
 
 def plot_losses(g_losses, d_losses, l_losses):
@@ -14,6 +15,18 @@ def plot_losses(g_losses, d_losses, l_losses):
 
 
 def display_tensor_image(x):
+    # x: Tensor with value from -1 to 1. Shape = (1, 3, 256, 256)
+    # Output image shape = (256, 256, 3)
+    x = x.permute(0, 2, 3, 1).squeeze(0)
+    x = x.cpu()
+    plt.imshow(x)
+    plt.show()
+
+
+def display_tensor_mask(x):
+    # x: Tensor with value from 0 to 1. Shape = (1, 1, 256, 256)
+    # Output image shape = (256, 256, 3)
+    x = torch.cat((x, x, x), dim=1)
     x = x.permute(0, 2, 3, 1).squeeze(0)
     x = x.cpu()
     plt.imshow(x)
