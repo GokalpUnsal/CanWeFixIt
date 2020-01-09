@@ -19,7 +19,7 @@ ex_masks_path = "./ex_masks.pth"
 ex_images_path = "./ex_images.pth"
 
 # training
-num_epochs = 100
+num_epochs = 1
 batch_size = 16
 
 lr = 4e-5
@@ -27,5 +27,5 @@ beta1 = 0.5
 beta2 = 0.999
 l1_loss_alpha = 1
 
-iter_print = 1
-iter_save = 100
+iter_print = 10
+iter_save = 10

@@ -135,5 +135,7 @@ ex_masks.pth
 ex_images.pth
 g_losses.txt
 d_losses.txt
+d_losses_real.txt
+d_losses_fake.txt
 l_losses.txt
 random_mask.png

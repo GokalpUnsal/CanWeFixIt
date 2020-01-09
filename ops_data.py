@@ -37,12 +37,18 @@ def export_tensors(t, path):
     torch.save(t, path)
 
 
-def export_losses(g_losses, d_losses, l_losses):
+def export_losses(g_losses, d_losses, d_losses_real, d_losses_fake, l_losses):
     with open('g_losses.txt', 'w') as f:
         for item in g_losses:
             f.write("%s\n" % item)
     with open('d_losses.txt', 'w') as f:
         for item in d_losses:
+            f.write("%s\n" % item)
+    with open('d_losses_real.txt', 'w') as f:
+        for item in d_losses_real:
+            f.write("%s\n" % item)
+    with open('d_losses_fake.txt', 'w') as f:
+        for item in d_losses_fake:
             f.write("%s\n" % item)
     with open('l_losses.txt', 'w') as f:
         for item in l_losses:
