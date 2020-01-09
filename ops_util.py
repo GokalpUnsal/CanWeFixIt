@@ -342,3 +342,15 @@ def make_color_wheel():
     colorwheel[col:col + MR, 2] = 255 - np.transpose(np.floor(255 * np.arange(0, MR) / MR))
     colorwheel[col:col + MR, 0] = 255
     return colorwheel
+
+
+def scale_cv2_image(img, max_size):
+    height, width = img.shape[:2]
+    ratio = height / width
+    if height > width:
+        new_height = int(max_size)
+        new_width = int(max_size / ratio)
+    else:
+        new_height = int(max_size * ratio)
+        new_width = int(max_size)
+    return cv2.resize(img, (new_width, new_height))
