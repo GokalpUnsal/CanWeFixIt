@@ -131,4 +131,9 @@ imagenet/
 model.pth
 gen_model.pth
 dis_model.pth
+ex_masks.pth
+ex_images.pth
+g_losses.txt
+d_losses.txt
+l_losses.txt
 random_mask.png

@@ -6,7 +6,7 @@ import params
 from layers import GatedConv2D, GatedDeconv2D, ContextualAttention
 from ops_util import resize_mask_like, normalize_tensor
 
-from ops_visual import display_tensor_image, display_tensor_mask
+from ops_visual import display_tensor_image
 
 
 class Generator(nn.Module):
@@ -108,7 +108,6 @@ class Generator(nn.Module):
         x_inpaint.reshape(xin[:, 0:3, :, :].shape)
 
         # convolution branch
-        #xnow = torch.cat([x_inpaint, ones_x, ones_x*mask], dim=1)
         x = self.xconv1(x_inpaint)
         x = self.xconv2_downsample(x)
         x = self.xconv3(x)
@@ -128,7 +127,6 @@ class Generator(nn.Module):
         x = self.pmconv4_downsample(x)
         x = self.pmconv5(x)
         x = self.pmconv6(x)
-        # x, offset_flow = self.contextual_attention(x, x, mask_s)
         x, offset_flow = self.contextual_attention(x, x, mask_s)
         x = self.pmconv9(x)
         x = self.pmconv10(x)
@@ -145,9 +143,7 @@ class Generator(nn.Module):
         x = self.allconv17(x)
         x = torch.tanh(x)
         x_stage_2 = x
-        #TODO :1 THE MAIN PROBLEM IS 1-MASK
-        #x_inpaint = x_stage_1 * mask + xin[:, 0:3, :, :] * (1 - mask)
-        # x_stage_2 = xin[:, 0:3, :, :] * (mask)
+
         # return stage 1, stage 2 and offset flow results
         return x_stage_1, x_stage_2, offset_flow
 

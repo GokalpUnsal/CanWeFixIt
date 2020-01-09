@@ -6,8 +6,9 @@ from torch import optim
 import params
 from generator import Generator
 from layers import Discriminator
+from ops_data import export_losses, export_tensors
 from ops_util import bbox2mask, brush_stroke_mask, random_bbox, gan_hinge_loss, normalize_tensor
-from ops_visual import plot_losses, display_tensor_image
+from ops_visual import plot_losses, display_tensor_image, plot_masks, plot_images
 
 
 class GAN:
@@ -33,13 +34,11 @@ class GAN:
         G_losses = []
         D_losses = []
         L_losses = []
+        ex_masks = []
+        ex_images = []
         iters = 0
         self.gen.train()
         self.dis.train()
-
-        # bbox = random_bbox()
-        # mask = bbox2mask(bbox).to(self.device)
-        # display_tensor_mask(mask)
 
         for epoch in range(self.num_epochs):
             for i, batch_data in enumerate(dataloader, 0):
@@ -82,11 +81,20 @@ class GAN:
                 g_loss = g_loss + l1_loss
                 g_loss.backward()
                 self.optimizerG.step()
-                if iters % 10 == 0:
+                if iters % params.iter_print == 0:
                     print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:.5f}, d_loss = {:.5f}, l1_loss = {:.5f}"
                           .format(epoch + 1, self.num_epochs, iters, gen_loss.item(), dis_loss.item(), l1_loss.item()))
-                    # display_tensor_image(x1)
-                    # display_tensor_image(x2)
+                    ex_masks.append(mask)
+                    ex_images.append(x2[0])
+                # if iters % params.iter_print * 10 == 0:
+                #     ex_masks.append(mask)
+                #     ex_images.append(x2)
                 iters += 1
 
         plot_losses(G_losses, D_losses, L_losses)
+        plot_masks(ex_masks)
+        plot_images(ex_images)
+
+        export_losses(G_losses, D_losses, L_losses)
+        export_tensors(ex_masks, params.ex_masks_path)
+        export_tensors(ex_images, params.ex_images_path)
