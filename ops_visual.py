@@ -13,7 +13,7 @@ def plot_losses(g_losses, d_losses, l_losses):
     plt.xlabel("iterations")
     plt.ylabel("Loss")
     plt.legend()
-    plt.savefig("loss.pdf")
+    plt.show()
 
 
 def plot_gan_loss(g_losses, d_losses_real, d_losses_fake):
@@ -45,7 +45,7 @@ def plot_images(images):
             axarr[row, col].axis('off')
         axarr[row, col].set_xticks([])
         axarr[row, col].set_yticks([])
-    plt.savefig("images.pdf")
+    plt.show()
 
 
 def plot_masks(masks):
@@ -63,7 +63,7 @@ def plot_masks(masks):
             axarr[row, col].axis('off')
         axarr[row, col].set_xticks([])
         axarr[row, col].set_yticks([])
-    plt.savefig("masks.pdf")
+    plt.show()
 
 
 def display_tensor_image(img, inplace=True):
@@ -83,7 +83,7 @@ def display_tensor_image(img, inplace=True):
     if not inplace:
         return out
     plt.imshow(out)
-    plt.savefig("image.pdf")
+    plt.show()
 
 
 def display_tensor_mask(mask, inplace=True):
@@ -104,4 +104,4 @@ def display_tensor_mask(mask, inplace=True):
     if not inplace:
         return out
     plt.imshow(out)
-    plt.savefig("mask.pdf")
+    plt.show()

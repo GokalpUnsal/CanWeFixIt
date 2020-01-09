@@ -38,7 +38,7 @@ class Generator(nn.Module):
         self.conv17 = GatedConv2D(ch // 2, 3, activation=None)
 
         # stage 2
-        self.xconv1 = GatedConv2D(3, ch, kernel_size=5)
+        self.xconv1 = GatedConv2D(5, ch, kernel_size=5)
         self.xconv2_downsample = GatedConv2D(ch, ch, stride=2)
         self.xconv3 = GatedConv2D(ch, 2 * ch)
         self.xconv4_downsample = GatedConv2D(2 * ch, 2 * ch, stride=2)
@@ -50,14 +50,13 @@ class Generator(nn.Module):
         self.xconv10_atrous = GatedConv2D(4 * ch, 4 * ch, dilation=16)
 
         # attention branch
-        self.pmconv1 = GatedConv2D(3, ch, kernel_size=5)
+        self.pmconv1 = GatedConv2D(5, ch, kernel_size=5)
         self.pmconv2_downsample = GatedConv2D(ch, ch, stride=2)
         self.pmconv3 = GatedConv2D(ch, 2 * ch)
         self.pmconv4_downsample = GatedConv2D(2 * ch, 4 * ch, stride=2)
         self.pmconv5 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv6 = GatedConv2D(4 * ch, 4 * ch, activation=fun.relu)
-        self.contextual_attention = ContextualAttention(ksize=3, stride=1, rate=2, fuse_k=3, softmax_scale=10,
-                                                        fuse=True, use_cuda=self.use_cuda)
+        self.contextual_attention = ContextualAttention(4 * ch, 4 * ch)
         self.pmconv9 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv10 = GatedConv2D(4 * ch, 4 * ch)
 
@@ -106,6 +105,7 @@ class Generator(nn.Module):
         # put generated patch into input image without patch
         x_inpaint = x_stage_1 * mask + xin[:, 0:3, :, :] * (1 - mask)
         x_inpaint.reshape(xin[:, 0:3, :, :].shape)
+        x_inpaint = torch.cat([x_inpaint, ones_x, ones_x * mask], dim=1)
 
         # convolution branch
         # display_tensor_image(xin[0])
@@ -129,7 +129,7 @@ class Generator(nn.Module):
         x = self.pmconv4_downsample(x)
         x = self.pmconv5(x)
         x = self.pmconv6(x)
-        # x, offset_flow = self.contextual_attention(x, x, mask_s)
+        x, offset_flow = self.contextual_attention(x, x, mask)
         x = self.pmconv9(x)
         x = self.pmconv10(x)
         x_att = x
@@ -147,7 +147,6 @@ class Generator(nn.Module):
         x_stage_2 = x
 
         # return stage 1, stage 2 and offset flow results
-        offset_flow = 0
         return x_stage_1, x_stage_2, offset_flow
 
     def inpaint_image(self, image, mask):
