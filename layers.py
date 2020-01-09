@@ -46,7 +46,7 @@ class GatedConv2D(nn.Module):
         if x.shape[1] == 3 or self.activation is None:
             return x
         x = self.activation(x)
-        x = x * gate
+        x = x.data * gate.data
         return x
 
 
