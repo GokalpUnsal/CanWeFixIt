@@ -3,10 +3,10 @@ import torch.nn.functional as fun
 from torch import nn
 
 import params
-from layers import GatedConv2D, GatedDeconv2D, ContextualAttention
+from contextual_attention import ContextualAttention
+from layers import GatedConv2D, GatedDeconv2D
 from ops_util import resize_mask_like, normalize_tensor
-
-from ops_visual import display_tensor_image, display_tensor_mask
+from ops_visual import display_tensor_image
 
 
 class Generator(nn.Module):
@@ -108,8 +108,6 @@ class Generator(nn.Module):
         x_inpaint = torch.cat([x_inpaint, ones_x, ones_x * mask], dim=1)
 
         # convolution branch
-        # display_tensor_image(xin[0])
-        # display_tensor_image(x_inpaint[0])
         x = self.xconv1(x_inpaint)
         x = self.xconv2_downsample(x)
         x = self.xconv3(x)
@@ -129,7 +127,7 @@ class Generator(nn.Module):
         x = self.pmconv4_downsample(x)
         x = self.pmconv5(x)
         x = self.pmconv6(x)
-        x, offset_flow = self.contextual_attention(x, x, mask)
+        x, offset_flow = self.contextual_attention(x, x, mask_s)
         x = self.pmconv9(x)
         x = self.pmconv10(x)
         x_att = x
@@ -161,7 +159,7 @@ class Generator(nn.Module):
             mask = normalize_tensor(mask, (0, 255), (0, 1))
             image_incomplete = image * (torch.tensor(1.) - mask)
             _, prediction, flow = self(image_incomplete, mask)
-            #display_tensor_image(flow)
+            display_tensor_image(flow, flow=True)
             image_complete = prediction * mask + image_incomplete * (1 - mask)
             image_complete = normalize_tensor(image_complete, (-1, 1), (0, 1))
             return image_complete

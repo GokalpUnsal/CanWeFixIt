@@ -1,9 +1,9 @@
 import torch
+import torch.utils.data as tud
 
 import params
-import torch.utils.data as tud
-from ops_data import import_data, preprocess, export_model, import_model
 from model import GAN
+from ops_data import import_data, preprocess, export_model, import_model
 
 
 def main():

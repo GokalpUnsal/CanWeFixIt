@@ -66,7 +66,7 @@ def plot_masks(masks):
     plt.show()
 
 
-def display_tensor_image(img, inplace=True):
+def display_tensor_image(img, inplace=True, flow=False):
     # img: Tensor with shape (1, 3, im, im) or (3, im, im)
     # Output image shape = (im, im, 3)
     out = img
@@ -76,7 +76,8 @@ def display_tensor_image(img, inplace=True):
         else:
             print("Input is not a single image!")
             return
-    assert out.shape == (3, params.image_size, params.image_size)
+    if not flow:
+        assert out.shape == (3, params.image_size, params.image_size)
     out = out.permute(1, 2, 0)
     out = out.cpu()
     out = out.detach().numpy()

@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
+import torch
 import wx
 from wx.core import wx
-import torch
+
 import params
 from ops_data import import_model
 from ops_util import brush_stroke_mask

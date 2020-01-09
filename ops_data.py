@@ -1,9 +1,8 @@
 import torch
-from generator import Generator
-import params
-
 from torchvision import datasets, transforms
 
+import params
+from generator import Generator
 from layers import Discriminator
 
 
