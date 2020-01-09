@@ -25,7 +25,7 @@ def random_bbox(width=params.image_size // 2, height=params.image_size // 2,
 
 
 def brush_stroke_mask(dimensions=(params.image_size, params.image_size), min_num_vertex=1, max_num_vertex=4,
-                      min_line_width=4, max_line_width=10):
+                      min_line_width=8, max_line_width=20):
     """ Generate random mask
         Args:
             :param dimensions: tuple, (width, height)

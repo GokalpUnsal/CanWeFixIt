@@ -148,13 +148,13 @@ class Generator(nn.Module):
         return x_stage_1, x_stage_2, offset_flow
 
     def inpaint_image(self, image, mask):
-        # image: tensor with shape (256, 256, 3), values (0-255)
-        # mask: tensor with shape (256, 256, 1), values (0-1)
+        # image: tensor with shape (im, im, 3), values (0-im)
+        # mask: tensor with shape (im, im, 1), values (0-1)
         with torch.no_grad():
-            image = image.permute(2, 0, 1)  # (3, 256, 256)
-            mask = mask.permute(2, 0, 1)    # (1, 256, 256)
-            image = image.unsqueeze(0).to(params.device)    # (1, 3, 256, 256)
-            mask = mask.unsqueeze(0).to(params.device)      # (1, 1, 256, 256)
+            image = image.permute(2, 0, 1)  # (3, im, im)
+            mask = mask.permute(2, 0, 1)    # (1, im, im)
+            image = image.unsqueeze(0).to(params.device)    # (1, 3, im, im)
+            mask = mask.unsqueeze(0).to(params.device)      # (1, 1, im, im)
             image = normalize_tensor(image, (0, 255), (-1, 1))
             mask = normalize_tensor(mask, (0, 255), (0, 1))
             image_incomplete = image * (torch.tensor(1.) - mask)

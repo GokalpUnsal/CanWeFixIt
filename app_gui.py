@@ -90,6 +90,7 @@ class CanWeFixItGUI(wx.Frame):
         gen = import_model(params.gen_model_path, "G")
         org = torch.from_numpy(scale_cv2_image(self.original_img, params.image_size)).type(params.dtype)
         msk = torch.from_numpy(scale_cv2_image(self.mask_img, params.image_size)).type(params.dtype)
+        msk = msk.reshape((params.image_size, params.image_size, 1))
         img = gen.inpaint_image(org, msk)
         display_tensor_image(img)
 
@@ -123,11 +124,11 @@ class CanWeFixItGUI(wx.Frame):
 
     def draw_image(self, x, y):
         if self.prev_point is None:
-            cv2.circle(self.painted_img, (x, y), 3, (255, 255, 255), -1)
-            cv2.circle(self.mask_img, (x, y), 3, (255, 255, 255), -1)
+            cv2.circle(self.painted_img, (x, y), 10, (255, 255, 255), -1)
+            cv2.circle(self.mask_img, (x, y), 10, (255, 255, 255), -1)
         else:
-            cv2.line(self.painted_img, self.prev_point, (x, y), (255, 255, 255), thickness=6)
-            cv2.line(self.mask_img, self.prev_point, (x, y), (255, 255, 255), thickness=6)
+            cv2.line(self.painted_img, self.prev_point, (x, y), (255, 255, 255), thickness=20)
+            cv2.line(self.mask_img, self.prev_point, (x, y), (255, 255, 255), thickness=20)
 
         self.wx_bitmap.SetBitmap(wx.Bitmap.FromBuffer(self.img_width, self.img_height, self.painted_img))
         self.wx_bitmap.Refresh()
