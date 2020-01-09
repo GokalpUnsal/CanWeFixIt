@@ -10,6 +10,7 @@ from ops_visual import display_tensor_image
 
 
 class CanWeFixItGUI(wx.Frame):
+    # TODO: scale images to 256x256 size, and scale them down with the new mask after painting is done
     MAX_WIDTH = 64
     MAX_HEIGHT = 64
 
@@ -123,11 +124,11 @@ class CanWeFixItGUI(wx.Frame):
 
     def draw_image(self, x, y):
         if self.prev_point is None:
-            cv2.circle(self.painted_img, (x, y), 10, (255, 255, 255), -1)
-            cv2.circle(self.mask_img, (x, y), 10, (255, 255, 255), -1)
+            cv2.circle(self.painted_img, (x, y), 3, (255, 255, 255), -1)
+            cv2.circle(self.mask_img, (x, y), 3, (255, 255, 255), -1)
         else:
-            cv2.line(self.painted_img, self.prev_point, (x, y), (255, 255, 255), thickness=20)
-            cv2.line(self.mask_img, self.prev_point, (x, y), (255, 255, 255), thickness=20)
+            cv2.line(self.painted_img, self.prev_point, (x, y), (255, 255, 255), thickness=6)
+            cv2.line(self.mask_img, self.prev_point, (x, y), (255, 255, 255), thickness=6)
 
         self.wx_bitmap.SetBitmap(wx.Bitmap.FromBuffer(self.img_width, self.img_height, self.painted_img))
         self.wx_bitmap.Refresh()

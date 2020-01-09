@@ -84,11 +84,9 @@ class GAN:
                 if iters % params.iter_print == 0:
                     print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:.5f}, d_loss = {:.5f}, l1_loss = {:.5f}"
                           .format(epoch + 1, self.num_epochs, iters, gen_loss.item(), dis_loss.item(), l1_loss.item()))
+                if iters % params.iter_save == 0:
                     ex_masks.append(mask)
                     ex_images.append(x2[0])
-                # if iters % params.iter_print * 10 == 0:
-                #     ex_masks.append(mask)
-                #     ex_images.append(x2)
                 iters += 1
 
         plot_losses(G_losses, D_losses, L_losses)
