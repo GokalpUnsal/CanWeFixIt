@@ -6,22 +6,16 @@ from wx.core import wx
 
 import params
 from ops_data import import_model
-from ops_util import brush_stroke_mask
+from ops_util import brush_stroke_mask, scale_cv2_image
 from ops_visual import display_tensor_image
 
 
 class CanWeFixItGUI(wx.Frame):
-    # TODO: scale images to 256x256 size, and scale them down with the new mask after painting is done
-    MAX_WIDTH = 64
-    MAX_HEIGHT = 64
+    MAX_WIDTH = 512
+    MAX_HEIGHT = 512
 
     def __init__(self, parent, id, title):
-        wx.Frame.__init__(self,
-                          parent,
-                          id,
-                          title,
-                          wx.DefaultPosition,
-                          wx.Size(800, 800))
+        wx.Frame.__init__(self, parent, id, title, wx.DefaultPosition, wx.Size(700, 580))
 
         self.dirname = ''
         self.filename = ''
@@ -65,8 +59,13 @@ class CanWeFixItGUI(wx.Frame):
 
         original_img = cv2.imread(self.img, cv2.IMREAD_COLOR)
         original_img = cv2.cvtColor(original_img, cv2.COLOR_RGB2BGR)
-        self.original_img_height = original_img.shape[0]
-        self.original_img_width = original_img.shape[1]
+
+        if original_img.shape[0] != original_img.shape[1]:
+            dialog = wx.MessageDialog(self, "Selected image must have equal width and height!")
+            dialog.ShowModal()
+            return
+
+        self.original_img_height, self.original_img_width = original_img.shape[:2]
 
         if self.original_img_height > self.original_img_width:
             self.img_height = self.MAX_HEIGHT
@@ -80,7 +79,7 @@ class CanWeFixItGUI(wx.Frame):
         self.mask_img = np.zeros((self.img_height, self.img_width, 1), np.uint8)
 
         wx_img = wx.Bitmap.FromBuffer(self.img_width, self.img_height, self.painted_img)
-        self.wx_bitmap = wx.StaticBitmap(self, -1, wx_img, (106, 25))
+        self.wx_bitmap = wx.StaticBitmap(self, -1, wx_img, (180, 10))
         self.wx_bitmap.Bind(wx.EVT_LEFT_DOWN, self.on_image_left_down)
         self.wx_bitmap.Bind(wx.EVT_LEFT_UP, self.on_image_left_up)
         self.wx_bitmap.Bind(wx.EVT_MOTION, self.on_image_motion)
@@ -89,14 +88,13 @@ class CanWeFixItGUI(wx.Frame):
 
     def onInpaint(self, e):
         gen = import_model(params.gen_model_path, "G")
-        org = torch.from_numpy(self.original_img).type(params.dtype)
-        msk = torch.from_numpy(self.mask_img).type(params.dtype)
+        org = torch.from_numpy(scale_cv2_image(self.original_img, params.image_size)).type(params.dtype)
+        msk = torch.from_numpy(scale_cv2_image(self.mask_img, params.image_size)).type(params.dtype)
         img = gen.inpaint_image(org, msk)
-
         display_tensor_image(img)
 
     def onExportMask(self, e):
-        cv2.imwrite("mask_%s" % self.filename, self.mask_img)
+        cv2.imwrite("mask_%s" % self.filename, scale_cv2_image(self.mask_img, params.image_size))
 
     def onGenerateRandomMask(self, e):
         random_mask = brush_stroke_mask().permute(2, 3, 1, 0).numpy()[:, :, :, -1]
@@ -105,7 +103,7 @@ class CanWeFixItGUI(wx.Frame):
                 if random_mask[i][j] == 1:
                     random_mask[i][j] = 255
 
-        cv2.imshow("Random Mask", random_mask)
+        cv2.imwrite("rand.png", random_mask)
 
     def on_image_left_down(self, e):
         x, y = e.GetPosition()

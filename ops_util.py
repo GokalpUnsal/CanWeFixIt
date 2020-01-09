@@ -126,3 +126,15 @@ def normalize_tensor(t, input_range=(0, 1), output_range=(-1, 1)):
     assert diff1 != 0
     tn = (t - min1) * (diff2 / diff1) + min2
     return tn
+
+
+def scale_cv2_image(img, max_size):
+    height, width = img.shape[:2]
+    ratio = height / width
+    if height > width:
+        new_height = int(max_size)
+        new_width = int(max_size / ratio)
+    else:
+        new_height = int(max_size * ratio)
+        new_width = int(max_size)
+    return cv2.resize(img, (new_width, new_height))
