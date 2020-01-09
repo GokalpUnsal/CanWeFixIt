@@ -4,7 +4,7 @@ import torch
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # data
-data_root = "./imagenet/val/"
+data_root = "./imagenet/toy/"
 dtype = torch.float32
 image_size = 64
 
@@ -19,13 +19,13 @@ ex_masks_path = "./ex_masks.pth"
 ex_images_path = "./ex_images.pth"
 
 # training
-num_epochs = 4
+num_epochs = 100
 batch_size = 16
 
-lr = 2e-4
+lr = 4e-5
 beta1 = 0.5
 beta2 = 0.999
 l1_loss_alpha = 1
 
-iter_print = 10
+iter_print = 1
 iter_save = 100

@@ -56,15 +56,18 @@ class GAN:
                 x1, x2, _ = self.gen(xin, mask)
                 batch_predicted = x2
                 batch_fake = (batch_predicted * mask + batch_incomplete * (torch.tensor(1.) - mask)).to(self.device)
-                batch_mixed = torch.cat([batch_real, batch_fake], dim=0).to(self.device)
-                batch_mixed = torch.cat((batch_mixed, torch.cat((mask,) * batch_mixed.shape[0])), dim=1).to(self.device)
+                batch_real_with_masks = torch.cat((batch_fake, torch.cat((mask,) * batch_real.shape[0])), dim=1)
+                batch_fake_with_masks = torch.cat((batch_fake, torch.cat((mask,) * batch_fake.shape[0])), dim=1)
                 # Discriminator output for both real and fake images
-                labels_mixed = self.dis(batch_mixed)
-                labels_pos, labels_neg = torch.split(labels_mixed, labels_mixed.shape[0] // 2)
-                _, d_loss = gan_hinge_loss(labels_pos, labels_neg)
+                labels_pos = self.dis(batch_real_with_masks)
+                labels_neg = self.dis(batch_fake_with_masks.detach())
+                hinge_pos = torch.mean(torch.nn.functional.relu(1 - labels_pos)).to(params.device)
+                hinge_neg = torch.mean(torch.nn.functional.relu(1 + labels_neg)).to(params.device)
+                d_loss = (torch.tensor(.5, device=params.device) * hinge_pos +
+                          torch.tensor(.5, device=params.device) * hinge_neg)
                 dis_loss = d_loss
                 D_losses.append(d_loss.item())
-                d_loss.backward(retain_graph=True)
+                d_loss.backward()
                 self.optimizerD.step()
                 # Generator l1 and GAN loss
                 self.gen.zero_grad()
@@ -72,8 +75,7 @@ class GAN:
                                                 torch.mean(torch.abs(batch_real - x2)))
                 L_losses.append(l1_loss.item())
                 # Discriminator output for only fake images
-                batch_fake = torch.cat((batch_fake, torch.cat((mask,) * batch_fake.shape[0])), dim=1)
-                labels_neg = self.dis(batch_fake)
+                labels_neg = self.dis(batch_fake_with_masks)
                 g_loss = -torch.mean(labels_neg)
                 gen_loss = g_loss
                 g_loss = g_loss.to(self.device)
@@ -82,8 +84,10 @@ class GAN:
                 g_loss.backward()
                 self.optimizerG.step()
                 if iters % params.iter_print == 0:
-                    print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:.5f}, d_loss = {:.5f}, l1_loss = {:.5f}"
-                          .format(epoch + 1, self.num_epochs, iters, gen_loss.item(), dis_loss.item(), l1_loss.item()))
+                    print("Epoch {:2d}/{:2d}, iteration {:<4d}: g_loss = {:.5f}, "
+                          "d_loss(real) = {:.5f}, d_loss(fake) = {:.5f}, l1_loss = {:.5f}"
+                          .format(epoch + 1, self.num_epochs, iters, gen_loss.item(),
+                                  hinge_pos.item(), hinge_neg.item(), l1_loss.item()))
                 if iters % params.iter_save == 0:
                     ex_masks.append(mask)
                     ex_images.append(x2[0])
