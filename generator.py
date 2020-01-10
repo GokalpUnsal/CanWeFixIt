@@ -159,7 +159,6 @@ class Generator(nn.Module):
             mask = normalize_tensor(mask, (0, 255), (0, 1))
             image_incomplete = image * (torch.tensor(1.) - mask)
             _, prediction, flow = self(image_incomplete, mask)
-            display_tensor_image(flow, flow=True)
             image_complete = prediction * mask + image_incomplete * (1 - mask)
             image_complete = normalize_tensor(image_complete, (-1, 1), (0, 1))
             return image_complete
