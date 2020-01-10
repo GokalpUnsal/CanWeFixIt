@@ -3,11 +3,10 @@ import torch.nn.functional as fun
 from torch import nn
 
 import params
-from layers import GatedConv2D, GatedDeconv2D, ContextualAttention
+from contextual_attention import ContextualAttention
+from layers import GatedConv2D, GatedDeconv2D
 from ops_util import resize_mask_like, normalize_tensor
-import torch.nn.functional as F
-
-from ops_visual import display_tensor_image, display_tensor_mask
+from ops_visual import display_tensor_image
 
 
 class Generator(nn.Module):
@@ -39,7 +38,7 @@ class Generator(nn.Module):
         self.conv17 = GatedConv2D(ch // 2, 3, activation=None)
 
         # stage 2
-        self.xconv1 = GatedConv2D(3, ch, kernel_size=5)
+        self.xconv1 = GatedConv2D(5, ch, kernel_size=5)
         self.xconv2_downsample = GatedConv2D(ch, ch, stride=2)
         self.xconv3 = GatedConv2D(ch, 2 * ch)
         self.xconv4_downsample = GatedConv2D(2 * ch, 2 * ch, stride=2)
@@ -51,14 +50,13 @@ class Generator(nn.Module):
         self.xconv10_atrous = GatedConv2D(4 * ch, 4 * ch, dilation=16)
 
         # attention branch
-        self.pmconv1 = GatedConv2D(3, ch, kernel_size=5)
+        self.pmconv1 = GatedConv2D(5, ch, kernel_size=5)
         self.pmconv2_downsample = GatedConv2D(ch, ch, stride=2)
         self.pmconv3 = GatedConv2D(ch, 2 * ch)
         self.pmconv4_downsample = GatedConv2D(2 * ch, 4 * ch, stride=2)
         self.pmconv5 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv6 = GatedConv2D(4 * ch, 4 * ch, activation=fun.relu)
-        self.contextual_attention = ContextualAttention(ksize=3, stride=1, rate=2, fuse_k=3, softmax_scale=10,
-                                                        fuse=True, use_cuda=self.use_cuda)
+        self.contextual_attention = ContextualAttention(4 * ch, 4 * ch)
         self.pmconv9 = GatedConv2D(4 * ch, 4 * ch)
         self.pmconv10 = GatedConv2D(4 * ch, 4 * ch)
 
@@ -107,9 +105,9 @@ class Generator(nn.Module):
         # put generated patch into input image without patch
         x_inpaint = x_stage_1 * mask + xin[:, 0:3, :, :] * (1 - mask)
         x_inpaint.reshape(xin[:, 0:3, :, :].shape)
+        x_inpaint = torch.cat([x_inpaint, ones_x, ones_x * mask], dim=1)
 
         # convolution branch
-        #xnow = torch.cat([x_inpaint, ones_x, ones_x*mask], dim=1)
         x = self.xconv1(x_inpaint)
         x = self.xconv2_downsample(x)
         x = self.xconv3(x)
@@ -129,8 +127,7 @@ class Generator(nn.Module):
         x = self.pmconv4_downsample(x)
         x = self.pmconv5(x)
         x = self.pmconv6(x)
-        x, offset_flow = self.contextual_attention(x, x, mask)
-        # x, offset_flow = contextual_attention(x, x, mask_s, 3, 1, rate=2)
+        x, offset_flow = self.contextual_attention(x, x, mask_s)
         x = self.pmconv9(x)
         x = self.pmconv10(x)
         x_att = x
@@ -146,23 +143,22 @@ class Generator(nn.Module):
         x = self.allconv17(x)
         x = torch.tanh(x)
         x_stage_2 = x
-        #x_inpaint = x_stage_1 * mask + xin[:, 0:3, :, :] * (1 - mask)
-        # x_stage_2 = xin[:, 0:3, :, :] * (mask)
+
         # return stage 1, stage 2 and offset flow results
         return x_stage_1, x_stage_2, offset_flow
 
     def inpaint_image(self, image, mask):
-        # image: tensor with shape (256, 256, 3), values (0-255)
-        # mask: tensor with shape (256, 256, 1), values (0-1)
+        # image: tensor with shape (im, im, 3), values (0-im)
+        # mask: tensor with shape (im, im, 1), values (0-1)
         with torch.no_grad():
-            image = image.permute(2, 0, 1)  # (3, 256, 256)
-            mask = mask.permute(2, 0, 1)    # (1, 256, 256)
-            image = image.unsqueeze(0).to(params.device)    # (1, 3, 256, 256)
-            mask = mask.unsqueeze(0).to(params.device)      # (1, 1, 256, 256)
+            image = image.permute(2, 0, 1)  # (3, im, im)
+            mask = mask.permute(2, 0, 1)    # (1, im, im)
+            image = image.unsqueeze(0).to(params.device)    # (1, 3, im, im)
+            mask = mask.unsqueeze(0).to(params.device)      # (1, 1, im, im)
             image = normalize_tensor(image, (0, 255), (-1, 1))
             mask = normalize_tensor(mask, (0, 255), (0, 1))
             image_incomplete = image * (torch.tensor(1.) - mask)
-            _, prediction, _ = self(image_incomplete, mask)
+            _, prediction, flow = self(image_incomplete, mask)
             image_complete = prediction * mask + image_incomplete * (1 - mask)
             image_complete = normalize_tensor(image_complete, (-1, 1), (0, 1))
             return image_complete
